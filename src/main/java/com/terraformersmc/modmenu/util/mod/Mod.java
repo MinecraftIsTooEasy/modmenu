@@ -4,9 +4,9 @@ import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.util.TranslationUtil;
 import com.terraformersmc.modmenu.util.mod.fabric.FabricIconHandler;
 import net.fabricmc.loader.api.metadata.ModOrigin;
-import net.minecraft.client.render.texture.DynamicTexture;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.Text;
+import net.minecraft.DynamicTexture;
+import net.minecraft.I18n;
+import net.minecraft.ChatMessageComponent;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,7 @@ public interface Mod {
 	default String getTranslatedName() {
 		String translationKey = "modmenu.nameTranslation." + getId();
 		if ((getId().equals("minecraft") || getId().equals("java") || ModMenuConfig.TRANSLATE_NAMES.getValue()) && TranslationUtil.hasTranslation(translationKey)) {
-			return I18n.translate(translationKey);
+			return I18n.getString(translationKey);
 		}
 		return getName();
 	}
@@ -43,7 +43,7 @@ public interface Mod {
 	default String getTranslatedSummary() {
 		String translationKey = "modmenu.summaryTranslation." + getId();
 		if ((getId().equals("minecraft") || getId().equals("java") || ModMenuConfig.TRANSLATE_DESCRIPTIONS.getValue()) && TranslationUtil.hasTranslation(translationKey)) {
-			return I18n.translate(translationKey);
+			return I18n.getString(translationKey);
 		}
 		return getTranslatedDescription();
 	}
@@ -55,7 +55,7 @@ public interface Mod {
 	default String getTranslatedDescription() {
 		String translatableDescriptionKey = "modmenu.descriptionTranslation." + getId();
 		if ((getId().equals("minecraft") || getId().equals("java") || ModMenuConfig.TRANSLATE_DESCRIPTIONS.getValue()) && TranslationUtil.hasTranslation(translatableDescriptionKey)) {
-			return I18n.translate(translatableDescriptionKey);
+			return I18n.getString(translatableDescriptionKey);
 		}
 		return getDescription();
 	}
@@ -123,19 +123,19 @@ public interface Mod {
 		MODPACK("modmenu.badge.modpack", 0xff7a2b7c, 0xff510d54, null),
 		MINECRAFT("modmenu.badge.minecraft", 0xff6f6c6a, 0xff31302f, null);
 
-		private final Text text;
+		private final ChatMessageComponent text;
 		private final int outlineColor, fillColor;
 		private final String key;
 		private static final Map<String, Badge> KEY_MAP = new HashMap<>();
 
 		Badge(String translationKey, int outlineColor, int fillColor, String key) {
-			this.text = Text.translatable(translationKey);
+			this.text = ChatMessageComponent.createFromTranslationKey(translationKey);
 			this.outlineColor = outlineColor;
 			this.fillColor = fillColor;
 			this.key = key;
 		}
 
-		public Text getText() {
+		public ChatMessageComponent getText() {
 			return this.text;
 		}
 

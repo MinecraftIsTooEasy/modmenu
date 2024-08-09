@@ -1,23 +1,11 @@
 pluginManagement {
 	repositories {
+		mavenLocal()
 		maven {
 			name = 'Fabric'
 			url = 'https://maven.fabricmc.net/'
 		}
-		maven {
-			name = 'Ornithe Releases'
-			url = 'https://maven.ornithemc.net/releases'
-		}
-		maven {
-			name = 'Ornithe Snapshots'
-			url = 'https://maven.ornithemc.net/snapshots'
-		}
+		mavenCentral()
 		gradlePluginPortal()
 	}
 }
-
-if (JavaVersion.current().ordinal() + 1 < 17) {
-	throw new IllegalStateException("Please run gradle with Java 17+!")
-}
-
-rootProject.name = "modmenu"

@@ -4,19 +4,19 @@ import org.lwjgl.opengl.GL11;
 
 import com.terraformersmc.modmenu.util.DrawingUtil;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.Identifier;
+import net.minecraft.Minecraft;
+import net.minecraft.GuiButton;
+import net.minecraft.ResourceLocation;
 
-public class TexturedButtonWidget extends ButtonWidget {
-	protected final Identifier texture;
+public class TexturedButtonWidget extends GuiButton {
+	protected final ResourceLocation texture;
 	protected final int u;
 	protected final int v;
 	protected final int vOff;
 	protected final int textureWidth;
 	protected final int textureHeight;
 
-	public TexturedButtonWidget(int id, int x, int y, int width, int height, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight) {
+	public TexturedButtonWidget(int id, int x, int y, int width, int height, int u, int v, int hoveredVOffset, ResourceLocation texture, int textureWidth, int textureHeight) {
 		super(id, x, y, width, height, "");
 		this.texture = texture;
 		this.u = u;

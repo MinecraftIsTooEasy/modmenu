@@ -4,7 +4,7 @@ import com.terraformersmc.modmenu.ModMenu;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.gui.ModsScreen;
 import com.terraformersmc.modmenu.util.Pair;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.I18n;
 
 import java.util.Comparator;
 import java.util.List;
@@ -37,13 +37,13 @@ public class ModSearch {
 		String modTranslatedDescription = mod.getTranslatedDescription();
 		String modSummary = mod.getSummary();
 
-		String library = I18n.translate("modmenu.searchTerms.library");
-		String patchwork = I18n.translate("modmenu.searchTerms.patchwork");
-		String modpack = I18n.translate("modmenu.searchTerms.modpack");
-		String deprecated = I18n.translate("modmenu.searchTerms.deprecated");
-		String clientside = I18n.translate("modmenu.searchTerms.clientside");
-		String configurable = I18n.translate("modmenu.searchTerms.configurable");
-		String hasUpdate = I18n.translate("modmenu.searchTerms.hasUpdate");
+		String library = I18n.getString("modmenu.searchTerms.library");
+		String patchwork = I18n.getString("modmenu.searchTerms.patchwork");
+		String modpack = I18n.getString("modmenu.searchTerms.modpack");
+		String deprecated = I18n.getString("modmenu.searchTerms.deprecated");
+		String clientside = I18n.getString("modmenu.searchTerms.clientside");
+		String configurable = I18n.getString("modmenu.searchTerms.configurable");
+		String hasUpdate = I18n.getString("modmenu.searchTerms.hasUpdate");
 
 		// Libraries are currently hidden, ignore them entirely
 		if (mod.isHidden() || !ModMenuConfig.SHOW_LIBRARIES.getValue() && mod.getBadges().contains(Mod.Badge.LIBRARY)) {

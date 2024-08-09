@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.terraformersmc.modmenu.gui.widget.Controller;
 import com.terraformersmc.modmenu.gui.widget.TextFieldAccess;
 
-import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.GuiTextField;
 
-@Mixin(TextFieldWidget.class)
+@Mixin(GuiTextField.class)
 public class MixinTextFieldWidget implements TextFieldAccess {
 
 	@Shadow

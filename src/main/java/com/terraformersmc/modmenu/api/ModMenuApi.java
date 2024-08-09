@@ -3,8 +3,8 @@ package com.terraformersmc.modmenu.api;
 import com.google.common.collect.ImmutableMap;
 import com.terraformersmc.modmenu.ModMenu;
 import com.terraformersmc.modmenu.gui.ModsScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.GuiScreen;
+import net.minecraft.ChatMessageComponent;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -12,23 +12,23 @@ import java.util.function.Consumer;
 public interface ModMenuApi {
 
 	/**
-	 * Used for creating a {@link Screen} instance of the Mod Menu
+	 * Used for creating a {@link GuiScreen} instance of the Mod Menu
 	 * "Mods" screen
 	 *
 	 * @param previous The screen before opening
-	 * @return A "Mods" Screen
+	 * @return A "Mods" GuiScreen
 	 */
-	static Screen createModsScreen(Screen previous) {
+	static ModsScreen createModsScreen(GuiScreen previous) {
 		return new ModsScreen(previous);
 	}
 
 	/**
-	 * Used for creating a {@link Text} just like what would appear
+	 * Used for creating a {@link ChatMessageComponent} just like what would appear
 	 * on a Mod Menu Mods button
 	 *
 	 * @return The text that would be displayed on a Mods button
 	 */
-	static Text createModsButtonText() {
+	static ChatMessageComponent createModsButtonText() {
 		return ModMenu.createModsButtonText(true);
 	}
 

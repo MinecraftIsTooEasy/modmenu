@@ -1,6 +1,5 @@
 package com.terraformersmc.modmenu.gui.widget;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.terraformersmc.modmenu.ModMenu;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.gui.ModsScreen;
@@ -12,8 +11,8 @@ import com.terraformersmc.modmenu.gui.widget.entries.ParentEntry;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import com.terraformersmc.modmenu.util.mod.fabric.FabricIconHandler;
 import com.terraformersmc.modmenu.util.mod.ModSearch;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.Minecraft;
+import net.minecraft.MathHelper;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;

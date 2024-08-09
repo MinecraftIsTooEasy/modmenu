@@ -9,11 +9,11 @@ import com.terraformersmc.modmenu.gui.widget.ModMenuButtonWidget;
 import com.terraformersmc.modmenu.gui.widget.UpdateCheckerTexturedButtonWidget;
 import com.terraformersmc.modmenu.util.TranslationUtil;
 
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.Identifier;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.GuiScreen;
+import net.minecraft.GuiMainMenu;
+import net.minecraft.GuiButton;
+import net.minecraft.ResourceLocation;
+import net.minecraft.I18n;
 
 import java.util.List;
 
@@ -23,25 +23,25 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(TitleScreen.class)
-public abstract class MixinTitleScreen extends Screen {
+@Mixin(GuiMainMenu.class)
+public abstract class MixinTitleScreen extends GuiScreen {
 	/** button id for menu.multiplayer button */
 	private static final int MULTIPLAYER = 2;
 	/** button id for menu.online button */
 	private static final int ONLINE = 14;
 	/** button id for modmenu.title button */
 	private static final int MODS = 69;
-	private static final Identifier FABRIC_ICON_BUTTON_LOCATION = new Identifier(ModMenu.MOD_ID, "textures/gui/mods_button.png");
+	private static final ResourceLocation FABRIC_ICON_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/mods_button.png");
 
 	@Inject(at = @At(value = "TAIL"), method = "init")
 	private void onInit(CallbackInfo ci) {
-		final List<ButtonWidget> buttons = this.buttons;
+		final List<GuiButton> buttons = this.buttons;
 		if (ModMenuConfig.MODIFY_TITLE_SCREEN.getValue()) {
 			int modsButtonIndex = -1;
 			final int spacing = 24;
 			int buttonsY = this.height / 4 + 48;
 			for (int i = 0; i < buttons.size(); i++) {
-				ButtonWidget button = buttons.get(i);
+				GuiButton button = buttons.get(i);
 				if (ModMenuConfig.MODS_BUTTON_STYLE.getValue() == ModMenuConfig.TitleMenuButtonStyle.CLASSIC) {
 					if (button.visible) {
 						ModMenuEventHandler.shiftButtons(button, modsButtonIndex == -1, spacing);
@@ -78,13 +78,13 @@ public abstract class MixinTitleScreen extends Screen {
 	}
 
 	@Inject(method = "buttonClicked", at = @At(value = "HEAD"))
-	private void onButtonClicked(ButtonWidget button, CallbackInfo ci) {
+	private void onButtonClicked(GuiButton button, CallbackInfo ci) {
 		if (button.id == MODS) {
 			this.minecraft.openScreen(new ModsScreen(this));
 		}
 	}
 
-	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawString(Lnet/minecraft/client/render/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))
+	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/GuiMainMenu;drawString(Lnet/minecraft/client/render/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))
 	private String onRender(String string) {
 		if (ModMenuConfig.MODIFY_TITLE_SCREEN.getValue() && ModMenuConfig.MOD_COUNT_LOCATION.getValue().isOnTitleScreen()) {
 			String count = ModMenu.getDisplayedModCount();

@@ -1,7 +1,7 @@
 package com.terraformersmc.modmenu.util.mod.fabric;
 
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.client.render.texture.DynamicTexture;
+import net.minecraft.DynamicTexture;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.Logger;
 

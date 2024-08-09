@@ -17,13 +17,12 @@ import com.terraformersmc.modmenu.util.TranslationUtil;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import com.terraformersmc.modmenu.util.mod.fabric.FabricDummyParentMod;
 import com.terraformersmc.modmenu.util.mod.fabric.FabricMod;
-import com.terraformersmc.modmenu.util.mod.quilt.QuiltMod;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
-import net.ornithemc.osl.entrypoints.api.client.ClientModInitializer;
+import net.minecraft.GuiScreen;
+import net.minecraft.ChatMessageComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +47,7 @@ public class ModMenu implements ClientModInitializer {
 	public static boolean runningQuilt = FabricLoader.getInstance().isModLoaded("quilt_loader");
 	public static boolean devEnvironment = FabricLoader.getInstance().isDevelopmentEnvironment();
 
-	public static Screen getConfigScreen(String modid, Screen menuScreen) {
+	public static GuiScreen getConfigScreen(String modid, GuiScreen menuScreen) {
 		if(!delayedScreenFactoryProviders.isEmpty()) {
 			delayedScreenFactoryProviders.forEach(map -> map.forEach(configScreenFactories::putIfAbsent));
 			delayedScreenFactoryProviders.clear();
@@ -82,13 +81,7 @@ public class ModMenu implements ClientModInitializer {
 
 		// Fill mods map
 		for (ModContainer modContainer : FabricLoader.getInstance().getAllMods()) {
-			Mod mod;
-
-			if (runningQuilt) {
-				mod = new QuiltMod(modContainer, modpackMods);
-			} else {
-				mod = new FabricMod(modContainer, modpackMods);
-			}
+			Mod mod = new FabricMod(modContainer, modpackMods);
 
 			MODS.put(mod.getId(), mod);
 		}
@@ -155,25 +148,30 @@ public class ModMenu implements ClientModInitializer {
 		return NumberFormat.getInstance().format(cachedDisplayedModCount);
 	}
 
-	public static Text createModsButtonText(boolean title) {
+	public static ChatMessageComponent createModsButtonText(boolean title) {
 		TitleMenuButtonStyle titleStyle = ModMenuConfig.MODS_BUTTON_STYLE.getValue();
 		GameMenuButtonStyle gameMenuStyle = ModMenuConfig.GAME_MENU_BUTTON_STYLE.getValue();
 		boolean isIcon = title ? titleStyle == ModMenuConfig.TitleMenuButtonStyle.ICON : gameMenuStyle == ModMenuConfig.GameMenuButtonStyle.ICON;
 		boolean isShort = /*title ? titleStyle == ModMenuConfig.TitleMenuButtonStyle.SHRINK :*/ false;
-		Text modsText = Text.translatable("modmenu.title");
+		ChatMessageComponent modsText = ChatMessageComponent.createFromTranslationKey("modmenu.title");
 		if (ModMenuConfig.MOD_COUNT_LOCATION.getValue().isOnModsButton() && !isIcon) {
 			String count = ModMenu.getDisplayedModCount();
 			if (isShort) {
-				modsText.append(Text.literal(" ")).appendTranslatable("modmenu.loaded.short", count);
+				modsText.appendComponent(ChatMessageComponent.createFromText(" ")).appendTranslatable("modmenu.loaded.short", count);
 			} else {
 				String specificKey = "modmenu.loaded." + count;
 				String key = TranslationUtil.hasTranslation(specificKey) ? specificKey : "modmenu.loaded";
 				if (ModMenuConfig.EASTER_EGGS.getValue() && TranslationUtil.hasTranslation(specificKey + ".secret")) {
 					key = specificKey + ".secret";
 				}
-				modsText.append(Text.literal(" ")).appendTranslatable(key, count);
+				modsText.appendComponent(ChatMessageComponent.createFromText(" ")).appendTranslatable(key, count);
 			}
 		}
 		return modsText;
+	}
+
+	@Override
+	public void onInitializeClient() {
+		
 	}
 }

@@ -1,70 +1,70 @@
 plugins {
+	id 'fml-loom' version '0.1.local'
 	id 'maven-publish'
-	id 'fabric-loom' version '1.4-SNAPSHOT'
-	id 'ploceus' version '1.4-SNAPSHOT'
 }
+
+version = project.mod_version
+group = project.maven_group
 
 base {
 	archivesName = project.archives_base_name
 }
-version = "${project.version}+mc${project.minecraft_version}"
-group = project.maven_group
 
 repositories {
+	mavenLocal()
 	maven {
-		name = 'Quilt'
-		url = 'https://maven.quiltmc.org/repository/release'
+		name = "Spongepowered"
+		url = "https://repo.spongepowered.org/repository/maven-public/"
 	}
-}
-
-dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.layered {
-		mappings "net.ornithemc:feather:${project.minecraft_version}+build.${project.feather_build}:v2"
-		addLayer ploceus.nestedMappings()
-	}
-	nests "net.ornithemc:nests:${project.minecraft_version}+build.${project.nests_build}"
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
-	compileOnly "org.quiltmc:quilt-loader:${project.quilt_loader_version}"
-
-	ploceus.addCommonLibraries()
-	ploceus.dependOsl(project.osl_version)
 }
 
 loom {
 	accessWidenerPath = file("src/main/resources/modmenu.accesswidener")
+	mergedMinecraftJar()
+	setFML(new File("F:\\Projects\\IDEA\\Minecraft\\MITE\\FML3\\FishModLoader-v3.3.2.jar"))
+	mods {
+		"Bread Skin" {
+			sourceSet sourceSets.main
+		}
+	}
+
+}
+
+runClient{
+	args("--username", "Player", "--session", "a.a.a.a", "--width", 854, "--height", 480)
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.fmlMCPMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+//	implementation("org.spongepowered:mixin:0.8.5")
+
+	implementation files(loom.getFML().toPath())
 }
 
 processResources {
-	inputs.property 'version', version
+	inputs.property "version", project.version
 
-	filesMatching('fabric.mod.json') {
-		expand 'version': version
+	filesMatching("fml.mod.json") {
+		expand "version": project.version
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.encoding = 'UTF-8'
-	it.options.release = 8
+	it.options.release = 17
 }
 
 java {
-	// Still required by IDEs such as Eclipse and Visual Studio Code
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
-
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	// If this mod is going to be a library, then it should also generate Javadocs in order to aid with development.
-	// Uncomment this line to generate them.
-//	withJavadocJar()
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
-	from('LICENSE') {
-		rename { "${it}_${base.archivesName.get()}" }
+	from("LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}"}
 	}
 }
 
@@ -76,19 +76,5 @@ publishing {
 	}
 
 	repositories {
-		def ENV = System.getenv()
-
-		if (ENV.MAVEN_URL) {
-			maven {
-				url ENV.MAVEN_URL
-
-				credentials {
-					username ENV.MAVEN_USERNAME
-					password ENV.MAVEN_PASSWORD
-				}
-			}
-		} else {
-			mavenLocal()
-		}
 	}
 }

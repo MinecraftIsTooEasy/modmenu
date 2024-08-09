@@ -3,12 +3,12 @@ package com.terraformersmc.modmenu.gui.widget;
 import com.terraformersmc.modmenu.ModMenu;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.Minecraft;
+import net.minecraft.GuiButton;
+import net.minecraft.ChatMessageComponent;
 
-public class ModMenuButtonWidget extends ButtonWidget {
-	public ModMenuButtonWidget(int id, int x, int y, int width, int height, Text text) {
+public class ModMenuButtonWidget extends GuiButton {
+	public ModMenuButtonWidget(int id, int x, int y, int width, int height, ChatMessageComponent text) {
 		super(id, x, y, width, height, text.buildString(true));
 	}
 

@@ -5,9 +5,9 @@ import java.util.Map;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.client.resource.language.TranslationStorage;
+import net.minecraft.Locale;
 
-@Mixin(TranslationStorage.class)
+@Mixin(Locale.class)
 public interface AccessorTranslationStorage {
 
 	@Accessor("translations")

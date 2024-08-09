@@ -7,18 +7,18 @@ import com.terraformersmc.modmenu.gui.ModsScreen;
 import com.terraformersmc.modmenu.gui.widget.ModMenuButtonWidget;
 import com.terraformersmc.modmenu.gui.widget.UpdateCheckerTexturedButtonWidget;
 
-import net.minecraft.client.gui.screen.GameMenuScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.Identifier;
+import net.minecraft.GuiMainMenu;
+import net.minecraft.GuiScreen;
+import net.minecraft.GuiButton;
+import net.minecraft.ResourceLocation;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GameMenuScreen.class)
-public abstract class MixinGameMenu extends Screen {
+@Mixin(GuiMainMenu.class)
+public abstract class MixinGameMenu extends GuiScreen {
 	/** button id for gui.advancements button */
 	private static final int ADVANCEMENTS = 5;
 	/** button id for gui.stats button */
@@ -27,7 +27,7 @@ public abstract class MixinGameMenu extends Screen {
 	private static final int SHARE_TO_LAN = 7;
 	/** button id for modmenu.title button */
 	private static final int MODS = 69;
-	private static final Identifier FABRIC_ICON_BUTTON_LOCATION = new Identifier(ModMenu.MOD_ID, "textures/gui/mods_button.png");
+	private static final ResourceLocation FABRIC_ICON_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/mods_button.png");
 	@Inject(method = "init", at = @At(value = "TAIL"))
 	private void onInit(CallbackInfo ci) {
 		if (ModMenuConfig.MODIFY_GAME_MENU.getValue()) {
@@ -39,7 +39,7 @@ public abstract class MixinGameMenu extends Screen {
 			int modsButtonWidth = -1;
 			int modsButtonHeight = 20;
 			for (int i = 0; i < this.buttons.size(); i++) {
-				final ButtonWidget button = (ButtonWidget) this.buttons.get(i);
+				final GuiButton button = (GuiButton) this.buttons.get(i);
 				if (style == ModMenuConfig.GameMenuButtonStyle.BELOW_ADVANCEMENTS && button.id == ADVANCEMENTS) {
 					modsButtonX = button.x;
 					modsButtonWidth = ((AccessorButtonWidget) button).getWidth();
@@ -76,7 +76,7 @@ public abstract class MixinGameMenu extends Screen {
 	}
 
 	@Inject(method = "buttonClicked", at = @At(value = "HEAD"))
-	private void onButtonClicked(ButtonWidget button, CallbackInfo ci) {
+	private void onButtonClicked(GuiButton button, CallbackInfo ci) {
 		if (button.id == MODS) {
 			this.minecraft.openScreen(new ModsScreen(this));
 		}

@@ -1,17 +1,17 @@
 accessWidener v2 named
 
-accessible	method	net/minecraft/client/gui/widget/ListWidget capScrolling ()V
-
-accessible	field	net/minecraft/client/gui/widget/ListWidget scrollAmount F
-accessible	field	net/minecraft/client/gui/widget/ListWidget headerHeight I
-accessible	field	net/minecraft/client/gui/widget/ListWidget width I
-accessible	field	net/minecraft/client/gui/widget/ListWidget height I
-accessible	field	net/minecraft/client/gui/widget/ListWidget minX I
-accessible	field	net/minecraft/client/gui/widget/ListWidget maxX I
-accessible	field	net/minecraft/client/gui/widget/ListWidget mouseYStart F
-accessible	field	net/minecraft/client/gui/widget/ListWidget pos I
-accessible	field	net/minecraft/client/gui/widget/ListWidget time J
-accessible	field	net/minecraft/client/gui/widget/ListWidget renderHeader Z
-accessible	field	net/minecraft/client/gui/widget/ListWidget renderSelectionHighlight Z
-accessible	field	net/minecraft/client/gui/widget/ListWidget minecraft Lnet/minecraft/client/Minecraft;
-accessible	field	net/minecraft/client/gui/widget/ListWidget scrollSpeedMultiplier F
+accessible field net/minecraft/GuiSlot left I
+accessible field net/minecraft/GuiSlot right I
+accessible field net/minecraft/GuiSlot initialClickY F
+accessible field net/minecraft/GuiSlot field_77242_t I
+accessible field net/minecraft/GuiSlot amountScrolled F
+accessible field net/minecraft/GuiSlot lastClicked J
+accessible field net/minecraft/GuiSlot scrollMultiplier F
+accessible field net/minecraft/GuiSlot selectedElement I
+accessible field net/minecraft/GuiSlot width I
+accessible field net/minecraft/GuiSlot height I
+accessible field net/minecraft/GuiSlot mc Lnet/minecraft/Minecraft;
+accessible method net/minecraft/GuiSlot bindAmountScrolled ()V
+accessible field net/minecraft/GuiSlot field_77243_s Z
+accessible field net/minecraft/GuiSlot showSelectionBox Z
+accessible method net/minecraft/FontRenderer trimStringNewline (Ljava/lang/String;)Ljava/lang/String;

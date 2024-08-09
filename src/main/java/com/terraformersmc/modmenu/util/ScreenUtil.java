@@ -5,11 +5,11 @@ import java.net.URISyntaxException;
 
 import com.terraformersmc.modmenu.ModMenu;
 
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.GuiScreen;
 
 public class ScreenUtil {
 
-	public static void openLink(Screen screen, String link, String source) {
+	public static void openLink(GuiScreen screen, String link, String source) {
 		try {
 			openLink(new URI(link));
 		} catch (URISyntaxException e) {

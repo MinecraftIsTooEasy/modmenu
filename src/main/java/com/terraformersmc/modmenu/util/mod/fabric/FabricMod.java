@@ -13,8 +13,8 @@ import com.terraformersmc.modmenu.util.mod.ModrinthData;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.*;
-import net.minecraft.client.render.texture.DynamicTexture;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.DynamicTexture;
+import net.minecraft.I18n;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -176,7 +176,7 @@ public class FabricMod implements Mod {
 	public @NotNull String getTranslatedDescription() {
 		String description = Mod.super.getTranslatedDescription();
 		if (getId().equals("java")) {
-			description = description + "\n" + I18n.translate("modmenu.javaDistributionName", getName());
+			description = description + "\n" + I18n.getStringParams("modmenu.javaDistributionName", getName());
 		}
 		return description;
 	}

@@ -1,6 +1,6 @@
 package com.terraformersmc.modmenu.config.option;
 
-import net.minecraft.text.Text;
+import net.minecraft.ChatMessageComponent;
 
 import com.terraformersmc.modmenu.util.TranslationUtil;
 
@@ -30,8 +30,8 @@ public class StringSetConfigOption {
 		ConfigOptionStorage.setStringSet(key, value);
 	}
 
-	public Text getMessage() {
-		return Text.translatable(translationKey);
+	public ChatMessageComponent getMessage() {
+		return ChatMessageComponent.createFromTranslationKey(translationKey);
 	}
 
 	public Set<String> getDefaultValue() {

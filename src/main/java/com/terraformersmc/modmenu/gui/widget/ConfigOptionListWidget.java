@@ -3,16 +3,13 @@ package com.terraformersmc.modmenu.gui.widget;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.*;
 import org.jetbrains.annotations.Nullable;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.terraformersmc.modmenu.config.option.ConfigOption;
 import com.terraformersmc.modmenu.gui.widget.entries.EntryListWidget;
 import com.terraformersmc.modmenu.mixin.AccessorButtonWidget;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.OptionButtonWidget;
 
 public class ConfigOptionListWidget extends EntryListWidget {
 	private final Minecraft minecraft;
@@ -32,11 +29,11 @@ public class ConfigOptionListWidget extends EntryListWidget {
     }
 
 	@Nullable
-	private static ButtonWidget createWidget(final Minecraft minecraft, int id, int x, int y, int width, final @Nullable ConfigOption option) {
+	private static GuiButton createWidget(final Minecraft minecraft, int id, int x, int y, int width, final @Nullable ConfigOption option) {
 		if (option == null) {
 			return null;
 		}
-		ButtonWidget button = new OptionButtonWidget(id, x, y, null, option.getValueLabel());
+		GuiButton button = new GuiSmallButton(id, x, y, null, option.getValueLabel());
 		((AccessorButtonWidget) button).setWidth(width);
 		return button;
 	}
@@ -47,7 +44,7 @@ public class ConfigOptionListWidget extends EntryListWidget {
 	}
 
 	@Override
-	protected int size() {
+	protected int getSize() {
 		return this.entries.size();
 	}
 
@@ -57,25 +54,30 @@ public class ConfigOptionListWidget extends EntryListWidget {
 	}
 
 	@Override
-	protected int getScrollbarPosition() {
-		return super.getScrollbarPosition() + 32;
+	protected int getScrollBarX() {
+		return super.getScrollBarX() + 32;
 	}
 
 	public boolean isMouseInList(int mouseX, int mouseY) {
-		return mouseY >= this.minY && mouseY <= this.maxY && mouseX >= this.minX && mouseX <= this.maxX;
+		return mouseY >= this.top && mouseY <= this.bottom && mouseX >= this.right && mouseX <= this.left;
+	}
+
+	@Override
+	protected void drawSlot(int i, int j, int k, int l, Tessellator tessellator) {
+
 	}
 
 	public final class Entry implements EntryListWidget.Entry {
 		@Nullable
 		private final ConfigOption leftOption;
 		@Nullable
-		private final ButtonWidget left;
+		private final GuiButton left;
 		@Nullable
 		private final ConfigOption rightOption;
 		@Nullable
-		private final ButtonWidget right;
+		private final GuiButton right;
 
-		public Entry(@Nullable ButtonWidget left, @Nullable ConfigOption leftOption, ButtonWidget right, @Nullable ConfigOption rightOption) {
+		public Entry(@Nullable GuiButton left, @Nullable ConfigOption leftOption, GuiButton right, @Nullable ConfigOption rightOption) {
 			this.left = left;
 			this.leftOption = leftOption;
 			this.right = right;
@@ -94,28 +96,28 @@ public class ConfigOptionListWidget extends EntryListWidget {
 		@Override
 		public void render(int index, int x, int y, int width, int height, BufferBuilder bufferBuilder, int mouseX, int mouseY, boolean hovered) {
 			if (this.left != null) {
-				this.left.y = y;
-				this.left.render(minecraft, mouseX, mouseY);
+				this.left.yPosition = y;
+				this.left.drawButton(minecraft, mouseX, mouseY);
 			}
 			if (this.right != null) {
-				this.right.y = y;
-				this.right.render(minecraft, mouseX, mouseY);
+				this.right.yPosition = y;
+				this.right.drawButton(minecraft, mouseX, mouseY);
 			}
 		}
 
 		@Override
 		public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int entryMouseX, int entryMouseY) {
 			if (button == 0) {
-				if (this.left != null && this.left.isMouseOver(minecraft, mouseX, mouseY)) {
+				if (this.left != null && this.left.mousePressed(minecraft, mouseX, mouseY)) {
 					this.leftOption.click();
-					minecraft.soundSystem.play("random.click", 1.0f, 1.0f);
-					this.left.message = this.leftOption.getValueLabel();
+					minecraft.sndManager.playSoundFX("random.click", 1.0f, 1.0f);
+					this.left.displayString = this.leftOption.getValueLabel();
 					return true;
 				}
-				if (this.right != null && this.right.isMouseOver(minecraft, mouseX, mouseY)) {
+				if (this.right != null && this.right.mousePressed(minecraft, mouseX, mouseY)) {
 					this.rightOption.click();
-					minecraft.soundSystem.play("random.click", 1.0f, 1.0f);
-					this.right.message = this.rightOption.getValueLabel();
+					minecraft.sndManager.playSoundFX("random.click", 1.0f, 1.0f);
+					this.right.displayString = this.rightOption.getValueLabel();
 					return true;
 				}
 			}

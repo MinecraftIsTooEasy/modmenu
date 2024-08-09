@@ -1,6 +1,5 @@
 package com.terraformersmc.modmenu.gui.widget;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.gui.ModsScreen;
@@ -10,14 +9,7 @@ import com.terraformersmc.modmenu.util.GlUtil;
 import com.terraformersmc.modmenu.util.ScreenUtil;
 import com.terraformersmc.modmenu.util.VersionUtil;
 import com.terraformersmc.modmenu.util.mod.Mod;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
-import net.minecraft.client.gui.screen.CreditsScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.*;
-import net.minecraft.text.Formatting;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,27 +21,27 @@ import org.lwjgl.opengl.GL11;
 
 public class DescriptionListWidget extends EntryListWidget {
 
-	private static final Text HAS_UPDATE_TEXT = Text.translatable("modmenu.hasUpdate");
-	private static final Text EXPERIMENTAL_TEXT = Text.translatable("modmenu.experimental").setColor(Formatting.GOLD);
-	private static final Text MODRINTH_TEXT = Text.translatable("modmenu.modrinth");
-	private static final Text CHILD_HAS_UPDATE_TEXT = Text.translatable("modmenu.childHasUpdate");
-	private static final Text LINKS_TEXT = Text.translatable("modmenu.links");
-	private static final Text SOURCE_TEXT = Text.translatable("modmenu.source").setColor(Formatting.BLUE).setUnderlined(true);
-	private static final Text LICENSE_TEXT = Text.translatable("modmenu.license");
-	private static final Text VIEW_CREDITS_TEXT = Text.translatable("modmenu.viewCredits").setColor(Formatting.BLUE).setUnderlined(true);
-	private static final Text CREDITS_TEXT = Text.translatable("modmenu.credits");
+	private static final ChatMessageComponent HAS_UPDATE_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.hasUpdate");
+	private static final ChatMessageComponent EXPERIMENTAL_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.experimental").setColor(EnumChatFormatting.GOLD);
+	private static final ChatMessageComponent MODRINTH_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.modrinth");
+	private static final ChatMessageComponent CHILD_HAS_UPDATE_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.childHasUpdate");
+	private static final ChatMessageComponent LINKS_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.links");
+	private static final ChatMessageComponent SOURCE_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.source").setColor(EnumChatFormatting.BLUE).setUnderline(true);
+	private static final ChatMessageComponent LICENSE_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.license");
+	private static final ChatMessageComponent VIEW_CREDITS_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.viewCredits").setColor(EnumChatFormatting.BLUE).setUnderline(true);
+	private static final ChatMessageComponent CREDITS_TEXT = ChatMessageComponent.createFromTranslationKey("modmenu.credits");
 
 	private final Minecraft minecraft;
 	private final ModsScreen parent;
-	private final TextRenderer textRenderer;
+	private final FontRenderer textRenderer;
 	private final List<DescriptionEntry> entries = new ArrayList<>();
 	private ModListEntry lastSelected = null;
 
-	public DescriptionListWidget(Minecraft client, int width, int height, int top, int bottom, int entryHeight, ModsScreen parent) {
-		super(client, width, height, top, bottom, entryHeight);
+	public DescriptionListWidget(Minecraft client, int width, int height, int top, int bottom, int slotHeight, ModsScreen parent) {
+		super(client, width, height, top, bottom, slotHeight);
 		this.minecraft = client;
 		this.parent = parent;
-		this.textRenderer = client.textRenderer;
+		this.textRenderer = client.fontRenderer;
 	}
 
 	@Override
@@ -58,17 +50,22 @@ public class DescriptionListWidget extends EntryListWidget {
 	}
 
 	@Override
-	protected int getScrollbarPosition() {
-		return this.width - 6 + this.minX;
+	protected int getScrollBarX() {
+		return this.width - 6 + this.left;
 	}
 
 	public boolean isMouseInList(int mouseX, int mouseY) {
-		return mouseY >= this.minY && mouseY <= this.maxY && mouseX >= this.minX && mouseX <= this.maxX;
+		return mouseY >= this.top && mouseY <= this.bottom && mouseX >= this.right && mouseX <= this.left;
 	}
 
 	@Override
-	public int size() {
+	public int getSize() {
 		return this.entries.size();
+	}
+
+	@Override
+	protected void drawSlot(int i, int j, int k, int l, Tessellator tessellator) {
+
 	}
 
 	public void clear() {
@@ -81,15 +78,15 @@ public class DescriptionListWidget extends EntryListWidget {
 	}
 
 	@Override
-	public void render(int mouseX, int mouseY, float delta) {
+	public void drawScreen(int mouseX, int mouseY, float delta) {
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
-		capScrolling();
+		bindAmountScrolled();
 		ModListEntry selectedEntry = parent.getSelectedEntry();
 		if (selectedEntry != lastSelected) {
 			lastSelected = selectedEntry;
 			clear();
-			scroll(-Integer.MAX_VALUE);
+			func_77208_b(-Integer.MAX_VALUE);
 			if (lastSelected != null) {
 				DescriptionEntry emptyEntry = new DescriptionEntry("");
 				int wrapWidth = getRowWidth() - 5;
@@ -97,7 +94,7 @@ public class DescriptionListWidget extends EntryListWidget {
 				Mod mod = lastSelected.getMod();
 				String description = mod.getTranslatedDescription();
 				if (!description.isEmpty()) {
-					for (Object line : textRenderer.split(description.replaceAll("\n", "\n\n"), wrapWidth)) {
+					for (Object line : textRenderer.listFormattedStringToWidth(description.replaceAll("\n", "\n\n"), wrapWidth)) {
 						this.entries.add(new DescriptionEntry((String) line));
 					}
 				}
@@ -107,7 +104,7 @@ public class DescriptionListWidget extends EntryListWidget {
 						this.entries.add(emptyEntry);
 
 						int index = 0;
-						for (Object line : textRenderer.split(HAS_UPDATE_TEXT.buildString(true), wrapWidth - 11)) {
+						for (Object line : textRenderer.listFormattedStringToWidth(HAS_UPDATE_TEXT.toStringWithFormatting(true), wrapWidth - 11)) {
 							DescriptionEntry entry = new DescriptionEntry((String) line);
 							if (index == 0) entry.setUpdateTextEntry();
 
@@ -115,16 +112,16 @@ public class DescriptionListWidget extends EntryListWidget {
 							index += 1;
 						}
 
-						for (Object line : textRenderer.split(EXPERIMENTAL_TEXT.buildString(true), wrapWidth - 16)) {
+						for (Object line : textRenderer.listFormattedStringToWidth(EXPERIMENTAL_TEXT.toStringWithFormatting(true), wrapWidth - 16)) {
 							this.entries.add(new DescriptionEntry((String) line, 8));
 						}
 
-						Text updateText = Text.translatable("modmenu.updateText", VersionUtil.stripPrefix(mod.getModrinthData().versionNumber()), MODRINTH_TEXT)
-							.setColor(Formatting.BLUE).setUnderlined(true);
+						ChatMessageComponent updateText = ChatMessageComponent.createFromTranslationWithSubstitutions("modmenu.updateText", VersionUtil.stripPrefix(mod.getModrinthData().versionNumber()), MODRINTH_TEXT)
+							.setColor(EnumChatFormatting.BLUE).setUnderline(true);
 
 						String versionLink = String.format("https://modrinth.com/project/%s/version/%s", mod.getModrinthData().projectId(), mod.getModrinthData().versionId());
 
-						for (Object line : textRenderer.split(updateText.buildString(true), wrapWidth - 16)) {
+						for (Object line : textRenderer.listFormattedStringToWidth(updateText.toStringWithFormatting(true), wrapWidth - 16)) {
 							this.entries.add(new LinkEntry((String) line, versionLink, 8));
 						}
 					}
@@ -132,7 +129,7 @@ public class DescriptionListWidget extends EntryListWidget {
 						this.entries.add(emptyEntry);
 
 						int index = 0;
-						for (Object line : textRenderer.split(CHILD_HAS_UPDATE_TEXT.buildString(true), wrapWidth - 11)) {
+						for (Object line : textRenderer.listFormattedStringToWidth(CHILD_HAS_UPDATE_TEXT.toStringWithFormatting(true), wrapWidth - 11)) {
 							DescriptionEntry entry = new DescriptionEntry((String) line);
 							if (index == 0) entry.setUpdateTextEntry();
 
@@ -147,13 +144,13 @@ public class DescriptionListWidget extends EntryListWidget {
 				if ((!links.isEmpty() || sourceLink != null) && !ModMenuConfig.HIDE_MOD_LINKS.getValue()) {
 					this.entries.add(emptyEntry);
 
-					for (Object line : textRenderer.split(LINKS_TEXT.buildString(true), wrapWidth)) {
+					for (Object line : textRenderer.listFormattedStringToWidth(LINKS_TEXT.toStringWithFormatting(true), wrapWidth)) {
 						this.entries.add(new DescriptionEntry((String) line));
 					}
 
 					if (sourceLink != null) {
 						int indent = 8;
-						for (Object line : textRenderer.split(SOURCE_TEXT.buildString(true), wrapWidth - 16)) {
+						for (Object line : textRenderer.listFormattedStringToWidth(SOURCE_TEXT.toStringWithFormatting(true), wrapWidth - 16)) {
 							this.entries.add(new LinkEntry((String) line, sourceLink, indent));
 							indent = 16;
 						}
@@ -161,7 +158,7 @@ public class DescriptionListWidget extends EntryListWidget {
 
 					links.forEach((key, value) -> {
 						int indent = 8;
-						for (Object line : textRenderer.split(Text.translatable(key).setColor(Formatting.BLUE).setUnderlined(true).buildString(true), wrapWidth - 16)) {
+						for (Object line : textRenderer.listFormattedStringToWidth(ChatMessageComponent.createFromTranslationKey(key).setColor(EnumChatFormatting.BLUE).setUnderline(true).toStringWithFormatting(true), wrapWidth - 16)) {
 							this.entries.add(new LinkEntry((String) line, value, indent));
 							indent = 16;
 						}
@@ -172,13 +169,13 @@ public class DescriptionListWidget extends EntryListWidget {
 				if (!ModMenuConfig.HIDE_MOD_LICENSE.getValue() && !licenses.isEmpty()) {
 					this.entries.add(emptyEntry);
 
-					for (Object line : textRenderer.split(LICENSE_TEXT.buildString(true), wrapWidth)) {
+					for (Object line : textRenderer.listFormattedStringToWidth(LICENSE_TEXT.toStringWithFormatting(true), wrapWidth)) {
 						this.entries.add(new DescriptionEntry((String) line));
 					}
 
 					for (String license : licenses) {
 						int indent = 8;
-						for (Object line : textRenderer.split(license, wrapWidth - 16)) {
+						for (Object line : textRenderer.listFormattedStringToWidth(license, wrapWidth - 16)) {
 							this.entries.add(new DescriptionEntry((String) line, indent));
 							indent = 16;
 						}
@@ -189,7 +186,7 @@ public class DescriptionListWidget extends EntryListWidget {
 					if ("minecraft".equals(mod.getId())) {
 						this.entries.add(emptyEntry);
 
-						for (Object line : textRenderer.split(VIEW_CREDITS_TEXT.buildString(true), wrapWidth)) {
+						for (Object line : textRenderer.listFormattedStringToWidth(VIEW_CREDITS_TEXT.toStringWithFormatting(true), wrapWidth)) {
 							this.entries.add(new MojangCreditsEntry((String) line));
 						}
 					} else if (!"java".equals(mod.getId())) {
@@ -197,13 +194,13 @@ public class DescriptionListWidget extends EntryListWidget {
 						if (!credits.isEmpty()) {
 							this.entries.add(emptyEntry);
 
-							for (Object line : textRenderer.split(CREDITS_TEXT.buildString(true), wrapWidth)) {
+							for (Object line : textRenderer.listFormattedStringToWidth(CREDITS_TEXT.toStringWithFormatting(true), wrapWidth)) {
 								this.entries.add(new DescriptionEntry((String) line));
 							}
 
 							for (String credit : credits) {
 								int indent = 8;
-								for (Object line : textRenderer.split(credit, wrapWidth - 16)) {
+								for (Object line : textRenderer.listFormattedStringToWidth(credit, wrapWidth - 16)) {
 									this.entries.add(new DescriptionEntry((String) line, indent));
 									indent = 16;
 								}
@@ -217,19 +214,19 @@ public class DescriptionListWidget extends EntryListWidget {
 		BufferBuilder bufferBuilder = BufferBuilder.INSTANCE;
 
 		{
-			this.minecraft.getTextureManager().bind(Screen.BACKGROUND_LOCATION);
+			this.minecraft.getTextureManager().bindTexture(GuiScreen.optionsBackground);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			bufferBuilder.start(GL11.GL_QUADS);
 			bufferBuilder.color(0x20, 0x20, 0x20);
-            bufferBuilder.vertex(this.minX, this.maxY, 0.0, (this.minX / 32.0F), ((this.maxY + this.scrollAmount) / 32.0F));
-            bufferBuilder.vertex(this.maxX, this.maxY, 0.0, (this.maxX / 32.0F), ((this.maxY + this.scrollAmount) / 32.0F));
-            bufferBuilder.vertex(this.maxX, this.minY, 0.0, (this.maxX / 32.0F), ((this.minY + this.scrollAmount) / 32.0F));
-            bufferBuilder.vertex(this.minX, this.minY, 0.0, (this.minX / 32.0F), ((this.minY + this.scrollAmount) / 32.0F));
+            bufferBuilder.vertex(this.left, this.bottom, 0.0, (this.left / 32.0F), ((this.bottom + this.amountScrolled) / 32.0F));
+            bufferBuilder.vertex(this.right, this.bottom, 0.0, (this.right / 32.0F), ((this.bottom + this.amountScrolled) / 32.0F));
+            bufferBuilder.vertex(this.right, this.top, 0.0, (this.right / 32.0F), ((this.top + this.amountScrolled) / 32.0F));
+            bufferBuilder.vertex(this.left, this.top, 0.0, (this.left / 32.0F), ((this.top + this.amountScrolled) / 32.0F));
 			bufferBuilder.end();
 		}
 
-		int listX = this.minX + this.width / 2 - this.getRowWidth() / 2 + 2;
-		int listY = this.minY + 4 - (int)this.scrollAmount;
+		int listX = this.left + this.width / 2 - this.getRowWidth() / 2 + 2;
+		int listY = this.top + 4 - (int)this.amountScrolled;
 		this.renderList(listX, listY, mouseX, mouseY);
 
 		GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -242,19 +239,19 @@ public class DescriptionListWidget extends EntryListWidget {
 
 		bufferBuilder.start(GL11.GL_QUADS);
 		bufferBuilder.color(0, 0, 0, 0);
-		bufferBuilder.vertex(this.minX, this.minY + 4, 0.0, 0.0, 1.0);
-		bufferBuilder.vertex(this.maxX, this.minY + 4, 0.0, 1.0, 1.0);
+		bufferBuilder.vertex(this.left, this.top + 4, 0.0, 0.0, 1.0);
+		bufferBuilder.vertex(this.right, this.top + 4, 0.0, 1.0, 1.0);
 		bufferBuilder.color(0, 0, 0, 255);
-		bufferBuilder.vertex(this.maxX, this.minY, 0.0, 1.0, 0.0);
-		bufferBuilder.vertex(this.minX, this.minY, 0.0, 0.0, 0.0);
+		bufferBuilder.vertex(this.right, this.top, 0.0, 1.0, 0.0);
+		bufferBuilder.vertex(this.left, this.top, 0.0, 0.0, 0.0);
 		bufferBuilder.end();
 		bufferBuilder.start(GL11.GL_QUADS);
 		bufferBuilder.color(0, 0, 0, 255);
-		bufferBuilder.vertex(this.minX, this.maxY, 0.0, 0.0, 1.0);
-		bufferBuilder.vertex(this.maxX, this.maxY, 0.0, 1.0, 1.0);
+		bufferBuilder.vertex(this.left, this.bottom, 0.0, 0.0, 1.0);
+		bufferBuilder.vertex(this.right, this.bottom, 0.0, 1.0, 1.0);
 		bufferBuilder.color(0, 0, 0, 0);
-		bufferBuilder.vertex(this.maxX, this.maxY - 4, 0.0, 1.0, 0.0);
-		bufferBuilder.vertex(this.minX, this.maxY - 4, 0.0, 0.0, 0.0);
+		bufferBuilder.vertex(this.right, this.bottom - 4, 0.0, 1.0, 0.0);
+		bufferBuilder.vertex(this.left, this.bottom - 4, 0.0, 0.0, 0.0);
 		bufferBuilder.end();
 
 		this.renderScrollBar(bufferBuilder);
@@ -266,54 +263,54 @@ public class DescriptionListWidget extends EntryListWidget {
 	}
 
 	public void handleMouse() {
-		int size = this.size();
-		int scrollbarMinX = this.getScrollbarPosition();
+		int getSize = this.getSize();
+		int scrollbarMinX = this.getScrollBarX();
 		int scrollbarMaxX = scrollbarMinX + 6;
-		if (mouseX > this.minX && mouseX < this.maxX && mouseY > this.minY && mouseY < this.maxY) {
+		if (mouseX > this.left && mouseX < this.right && mouseY > this.top && mouseY < this.bottom) {
 			if (Mouse.isButtonDown(0)) {
-				if (this.mouseYStart == -1.0f) {
+				if (this.initialClickY == -1.0f) {
 					int mouseClickMode = 1;
-					if (mouseY >= this.minY && mouseY <= this.maxY) {
+					if (mouseY >= this.top && mouseY <= this.bottom) {
 						int rowMinX = this.width / 2 - this.getRowWidth() / 2;
 						int rowMaxX = this.width / 2 + this.getRowWidth() / 2;
-						int selectedY = mouseY - this.minY - this.headerHeight + (int) this.scrollAmount - 4;
-						int selectedPos = selectedY / this.entryHeight;
-						if (mouseX >= rowMinX && mouseX <= rowMaxX && selectedPos >= 0 && selectedY >= 0 && selectedPos < size) {
-							int selectedIndex = selectedPos == this.pos && Minecraft.getTime() - this.time < 250L ? 1 : 0;
-							this.entryClicked(selectedPos, selectedIndex != 0);
-							this.pos = selectedPos;
-							this.time = Minecraft.getTime();
+						int selectedY = mouseY - this.top - this.field_77242_t + (int) this.amountScrolled - 4;
+						int selectedPos = selectedY / this.slotHeight;
+						if (mouseX >= rowMinX && mouseX <= rowMaxX && selectedPos >= 0 && selectedY >= 0 && selectedPos < getSize) {
+							int selectedIndex = selectedPos == this.selectedElement && Minecraft.getSystemTime() - this.lastClicked < 250L ? 1 : 0;
+							this.elementClicked(selectedPos, selectedIndex != 0);
+							this.selectedElement = selectedPos;
+							this.lastClicked = Minecraft.getSystemTime();
 						} else if (mouseX >= rowMinX && mouseX <= rowMaxX && selectedY < 0) {
-							this.headerClicked(mouseX - rowMinX, mouseY - this.minY + (int) this.scrollAmount - 4);
+							this.func_77224_a(mouseX - rowMinX, mouseY - this.top + (int) this.amountScrolled - 4);
 							mouseClickMode = 0;
 						}
 						if (mouseX >= scrollbarMinX && mouseX <= scrollbarMaxX) {
-							this.scrollSpeedMultiplier = -1.0f;
-							int maxScroll = this.getMaxScroll();
+							this.scrollMultiplier = -1.0f;
+							int maxScroll = this.func_77209_d();
 							if (maxScroll < 1) {
 								maxScroll = 1;
 							}
 							int heightForScrolling;
-							if ((heightForScrolling = (int) ((float) ((this.maxY - this.minY) * (this.maxY - this.minY)) / (float) this.getHeight())) < 32) {
+							if ((heightForScrolling = (int) ((float) ((this.bottom - this.top) * (this.bottom - this.top)) / (float) this.getContentHeight())) < 32) {
 								heightForScrolling = 32;
 							}
-							if (heightForScrolling > this.maxY - this.minY - 8) {
-								heightForScrolling = this.maxY - this.minY - 8;
+							if (heightForScrolling > this.bottom - this.top - 8) {
+								heightForScrolling = this.bottom - this.top - 8;
 							}
-							this.scrollSpeedMultiplier /= (float) (this.maxY - this.minY - heightForScrolling) / (float) maxScroll;
+							this.scrollMultiplier /= (float) (this.bottom - this.top - heightForScrolling) / (float) maxScroll;
 						} else {
-							this.scrollSpeedMultiplier = 1.0f;
+							this.scrollMultiplier = 1.0f;
 						}
-						this.mouseYStart = mouseClickMode != 0 ? (float) mouseY : -2.0f;
+						this.initialClickY = mouseClickMode != 0 ? (float) mouseY : -2.0f;
 					} else {
-						this.mouseYStart = -2.0f;
+						this.initialClickY = -2.0f;
 					}
-				} else if (this.mouseYStart >= 0.0f) {
-					this.scrollAmount -= ((float) mouseY - this.mouseYStart) * this.scrollSpeedMultiplier;
-					this.mouseYStart = mouseY;
+				} else if (this.initialClickY >= 0.0f) {
+					this.amountScrolled -= ((float) mouseY - this.initialClickY) * this.scrollMultiplier;
+					this.initialClickY = mouseY;
 				}
 			} else {
-				while (!this.minecraft.options.touchscreen && Mouse.next()) {
+				while (!this.minecraft.gameSettings.touchscreen && Mouse.next()) {
 					int dwheel = Mouse.getEventDWheel();
 					if (dwheel != 0) {
 						if (dwheel > 0) {
@@ -321,41 +318,41 @@ public class DescriptionListWidget extends EntryListWidget {
 						} else if (dwheel < 0) {
 							dwheel = 1;
 						}
-						this.scrollAmount += dwheel * this.entryHeight / 2;
+						this.amountScrolled += dwheel * this.slotHeight / 2;
 					}
-					this.minecraft.screen.handleMouse();
+					this.minecraft.currentScreen.handleMouseInput();
 				}
-				this.mouseYStart = -1.0f;
+				this.initialClickY = -1.0f;
 			}
 		}
-		this.capScrolling();
+		this.bindAmountScrolled();
 	}
 
 	@Override
-	protected void renderEntry(int index, int x, int y, int height, BufferBuilder bufferBuilder) {
-		if (y >= this.minY && y + height <= this.maxY) {
-			super.renderEntry(index, x, y, height, bufferBuilder);
+	protected void drawSlot(int index, int x, int y, int height, BufferBuilder bufferBuilder) {
+		if (y >= this.top && y + height <= this.bottom) {
+			super.drawSlot(index, x, y, height, bufferBuilder);
 		}
 	}
 
 	public void renderScrollBar(BufferBuilder bufferBuilder) {
-		int scrollbarStartX = this.getScrollbarPosition();
+		int scrollbarStartX = this.getScrollBarX();
 		int scrollbarEndX = scrollbarStartX + 6;
-		int maxScroll = this.getMaxScroll();
+		int maxScroll = this.func_77209_d();
 		if (maxScroll > 0) {
-			int p = (int) ((float) ((this.maxY - this.minY) * (this.maxY - this.minY)) / (float) this.getMaxScroll());
-			p = MathHelper.clamp(p, 32, this.maxY - this.minY - 8);
-			int q = (int) this.getScrollAmount() * (this.maxY - this.minY - p) / maxScroll + this.minY;
-			if (q < this.minY) {
-				q = this.minY;
+			int p = (int) ((float) ((this.bottom - this.top) * (this.bottom - this.top)) / (float) this.func_77209_d());
+			p = MathHelper.clamp_int(p, 32, this.bottom - this.top - 8);
+			int q = (int) this.getScrollAmount() * (this.bottom - this.top - p) / maxScroll + this.top;
+			if (q < this.top) {
+				q = this.top;
 			}
 
 			bufferBuilder.start(GL11.GL_QUADS);
 			bufferBuilder.color(0, 0, 0, 0xFF);
-			bufferBuilder.vertex(scrollbarStartX, this.maxY, 0.0, 0.0, 1.0);
-			bufferBuilder.vertex(scrollbarEndX, this.maxY, 0.0, 1.0, 1.0);
-			bufferBuilder.vertex(scrollbarEndX, this.minY, 0.0, 1.0, 0.0);
-			bufferBuilder.vertex(scrollbarStartX, this.minY, 0.0, 0.0, 0.0);
+			bufferBuilder.vertex(scrollbarStartX, this.bottom, 0.0, 0.0, 1.0);
+			bufferBuilder.vertex(scrollbarEndX, this.bottom, 0.0, 1.0, 1.0);
+			bufferBuilder.vertex(scrollbarEndX, this.top, 0.0, 1.0, 0.0);
+			bufferBuilder.vertex(scrollbarStartX, this.top, 0.0, 0.0, 0.0);
 			bufferBuilder.end();
 			bufferBuilder.start(GL11.GL_QUADS);
 			bufferBuilder.color(0x80, 0x80, 0x80, 0xFF);
@@ -389,7 +386,7 @@ public class DescriptionListWidget extends EntryListWidget {
 			}
 		}
 
-		minecraft.openScreen(this.parent);
+		minecraft.displayGuiScreen(this.parent);
 	}
 
 	protected class DescriptionEntry implements EntryListWidget.Entry {
@@ -417,7 +414,7 @@ public class DescriptionListWidget extends EntryListWidget {
 				UpdateAvailableBadge.renderBadge(x + indent, y);
 				x+=11;
 			}
-			textRenderer.drawWithShadow(text, x + indent, y, 0xAAAAAA);
+			textRenderer.drawStringWithShadow(text, x + indent, y, 0xAAAAAA);
 		}
 
 		@Override
@@ -438,7 +435,7 @@ public class DescriptionListWidget extends EntryListWidget {
 		@Override
 		public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int entryMouseX, int entryMouseY) {
 			if (isMouseInList(mouseX, mouseY)) {
-				minecraft.openScreen(new CreditsScreen());
+				minecraft.displayGuiScreen(new GuiWinGame());
 			}
 			return super.mouseClicked(index, mouseX, mouseY, button, entryMouseX, entryMouseY);
 		}
@@ -459,7 +456,7 @@ public class DescriptionListWidget extends EntryListWidget {
 		@Override
 		public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int entryMouseX, int entryMouseY) {
 			if (isMouseInList(mouseX, mouseY)) {
-				minecraft.openScreen(new ConfirmChatLinkScreen(DescriptionListWidget.this.parent, link, ModsScreen.MODS_LIST_CONFIRM_ID_OFFSET + index, false));
+				minecraft.displayGuiScreen(new GuiConfirmOpenLink(DescriptionListWidget.this.parent, link, ModsScreen.MODS_LIST_CONFIRM_ID_OFFSET + index, false));
 			}
 			return super.mouseClicked(index, mouseX, mouseY, button, entryMouseX, entryMouseY);
 		}

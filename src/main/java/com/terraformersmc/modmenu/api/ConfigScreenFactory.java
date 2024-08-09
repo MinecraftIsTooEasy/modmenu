@@ -1,8 +1,8 @@
 package com.terraformersmc.modmenu.api;
 
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.GuiScreen;
 
 @FunctionalInterface
-public interface ConfigScreenFactory<S extends Screen> {
-	S create(Screen parent);
+public interface ConfigScreenFactory<S extends GuiScreen> {
+	S create(GuiScreen parent);
 }

@@ -3,44 +3,44 @@ package com.terraformersmc.modmenu.gui;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.config.ModMenuConfigManager;
 import com.terraformersmc.modmenu.gui.widget.ConfigOptionListWidget;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.GuiScreen;
+import net.minecraft.GuiButton;
+import net.minecraft.I18n;
 
-public class ModMenuOptionsScreen extends Screen {
+public class ModMenuOptionsScreen extends GuiScreen {
 
 	private static final int DONE = 0;
 
-	private Screen previous;
+	private GuiScreen previous;
 	private String title;
 	private ConfigOptionListWidget list;
 	private int mouseX;
 	private int mouseY;
 
-	public ModMenuOptionsScreen(Screen previous) {
+	public ModMenuOptionsScreen(GuiScreen previous) {
 		this.previous = previous;
-		this.title = I18n.translate("modmenu.options");
+		this.title = I18n.getString("modmenu.options");
 	}
 
 	@Override
 	public void init() {
-		this.list = new ConfigOptionListWidget(this.minecraft, this.width, this.height, 32, this.height - 32, 25, ModMenuConfig.asOptions());
-		this.buttons.add(new ButtonWidget(DONE, this.width / 2 - 100, this.height - 27, 200, 20, I18n.translate("gui.done")));
+		this.list = new ConfigOptionListWidget(this.mc, this.width, this.height, 32, this.height - 32, 25, ModMenuConfig.asOptions());
+		this.buttonList.add(new GuiButton(DONE, this.width / 2 - 100, this.height - 27, 200, 20, I18n.getString("gui.done")));
 	}
 
 	@Override
 	public void render(int mouseX, int mouseY, float delta) {
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
-		this.renderBackground();
-		this.list.render(mouseX, mouseY, delta);
-		this.drawCenteredString(this.textRenderer, this.title, this.width / 2, 5, 0xffffff);
-		super.render(mouseX, mouseY, delta);
+		this.drawDefaultBackground();
+		this.list.drawScreen(mouseX, mouseY, delta);
+		this.drawCenteredString(this.fontRenderer, this.title, this.width / 2, 5, 0xffffff);
+		super.drawScreen(mouseX, mouseY, delta);
 	}
 
 	@Override
-	public void handleMouse() {
-		super.handleMouse();
+	public void handleMouseInput() {
+		super.handleMouseInput();
 		if (this.list.isMouseInList(mouseX, mouseY)) {
 	//		this.list.handleMouse();
 		}
@@ -53,11 +53,11 @@ public class ModMenuOptionsScreen extends Screen {
 	}
 
 	@Override
-	public void buttonClicked(ButtonWidget button) {
+	public void buttonClicked(GuiButton button) {
 		switch (button.id) {
 		case DONE:
 			ModMenuConfigManager.save();
-			ModMenuOptionsScreen.this.minecraft.openScreen(ModMenuOptionsScreen.this.previous);
+			ModMenuOptionsScreen.this.mc.displayGuiScreen(ModMenuOptionsScreen.this.previous);
 			break;
 		}
 	}
