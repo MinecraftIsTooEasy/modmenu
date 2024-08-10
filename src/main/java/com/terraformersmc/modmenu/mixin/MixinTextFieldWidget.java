@@ -21,7 +21,7 @@ public class MixinTextFieldWidget implements TextFieldAccess {
 	private Controller controller;
 
 	@Inject(
-		method = "write",
+		method = "writeText",
 		at = @At(
 			value = "TAIL"
 		)
@@ -33,7 +33,7 @@ public class MixinTextFieldWidget implements TextFieldAccess {
 	}
 
 	@Inject(
-		method = "eraseCharacters",
+		method = "deleteFromCursor",
 		at = @At(
 			value = "TAIL"
 		)

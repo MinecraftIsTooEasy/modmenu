@@ -27,17 +27,17 @@ public class TexturedButtonWidget extends GuiButton {
 	}
 
 	@Override
-	public void render(Minecraft minecraft, int mouseX, int mouseY) {
-		if (this.visible) {
-			minecraft.getTextureManager().bind(this.texture);
+	public void drawButton(Minecraft minecraft, int mouseX, int mouseY) {
+		if (this.drawButton) {
+			minecraft.getTextureManager().bindTexture(this.texture);
 			GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-			boolean hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+			boolean hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 			int u = this.u;
 			int v = this.v;
 			if (hovered) {
 				v += this.vOff;
 			}
-			DrawingUtil.drawTexture(this.x, this.y, u, v, this.width, this.height, this.textureWidth, this.textureHeight);
+			DrawingUtil.drawTexture(this.xPosition, this.yPosition, u, v, this.width, this.height, this.textureWidth, this.textureHeight);
 		}
 	}
 }

@@ -34,7 +34,7 @@ public class ModBadgeRenderer {
 	}
 
 	public void drawBadge(ChatMessageComponent text, int outlineColor, int fillColor, int mouseX, int mouseY) {
-		int width = client.fontRenderer.getStringWidth(text.buildString(true)) + 6;
+		int width = client.fontRenderer.getStringWidth(text.toStringWithFormatting(true)) + 6;
 		if (badgeX + width < badgeMax) {
 			DrawingUtil.drawBadge(badgeX, badgeY, width, text, outlineColor, fillColor, 0xCACACA);
 			badgeX += width + 3;

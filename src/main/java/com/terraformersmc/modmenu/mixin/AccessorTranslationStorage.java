@@ -10,7 +10,7 @@ import net.minecraft.Locale;
 @Mixin(Locale.class)
 public interface AccessorTranslationStorage {
 
-	@Accessor("translations")
+	@Accessor("field_135032_a")
 	Map<String, String> getTranslations();
 
 }

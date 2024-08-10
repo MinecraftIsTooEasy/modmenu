@@ -1,5 +1,7 @@
 accessWidener v2 named
 
+accessible field net/xiaoyu233/fml/FishModLoader mods Ljava/util/ArrayList;
+
 accessible field net/minecraft/GuiSlot left I
 accessible field net/minecraft/GuiSlot right I
 accessible field net/minecraft/GuiSlot initialClickY F

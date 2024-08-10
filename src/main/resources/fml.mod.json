@@ -5,7 +5,7 @@
   "version": "$version",
   "environment": "client",
   "license": "MIT",
-  "icon": "assets/modmenu/icon.png",
+  "icon": "assets/minecraft/icon.png",
   "entrypoints": {
     "client-init": [
       "com.terraformersmc.modmenu.ModMenu"
@@ -20,16 +20,15 @@
     "issues": "https://github.com/OrnitheMC/modmenu/issues"
   },
   "depends": {
-    "minecraft": "1.6.x",
-    "fabricloader": ">=0.14.21",
-    "osl-entrypoints": ">=0.4.0",
-    "osl-resource-loader": ">=0.2.3"
+    "mite": "1.6.x",
+    "fishmodloader": ">=3.0.0"
   },
   "authors": [
     "Prospector",
     "haykam821",
     "TerraformersMC",
-    "OrnitheMC"
+    "OrnitheMC",
+    "Xy_Lose"
   ],
   "contributors": [
     "shedaniel",

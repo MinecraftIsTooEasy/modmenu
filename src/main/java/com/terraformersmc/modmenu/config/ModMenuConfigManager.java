@@ -8,6 +8,7 @@ import com.terraformersmc.modmenu.config.option.ConfigOptionStorage;
 import com.terraformersmc.modmenu.config.option.EnumConfigOption;
 import com.terraformersmc.modmenu.config.option.StringSetConfigOption;
 import net.fabricmc.loader.api.FabricLoader;
+import net.xiaoyu233.fml.FishModLoader;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -24,7 +25,7 @@ public class ModMenuConfigManager {
 		if (file != null) {
 			return;
 		}
-		file = new File(FabricLoader.getInstance().getConfigDir().toFile(), ModMenu.MOD_ID + ".json");
+		file = new File(FishModLoader.CONFIG_DIR, ModMenu.MOD_ID + ".json");
 	}
 
 	public static void initializeConfig() {

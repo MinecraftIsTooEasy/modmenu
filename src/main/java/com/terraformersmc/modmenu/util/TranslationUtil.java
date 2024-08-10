@@ -63,6 +63,6 @@ public class TranslationUtil {
 	}
 
 	public static String translateOptionLabel(ChatMessageComponent key, ChatMessageComponent value) {
-		return I18n.getStringParams("option.value_label", key.buildString(true), value.buildString(true));
+		return I18n.getStringParams("option.value_label", key.toStringWithFormatting(true), value.toStringWithFormatting(true));
 	}
 }

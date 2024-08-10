@@ -22,8 +22,8 @@ import java.util.Collections;
 
 public class ModListEntry implements EntryListWidget.Entry {
 	public static final ResourceLocation UNKNOWN_ICON = new ResourceLocation("textures/misc/unknown_pack.png");
-	private static final ResourceLocation MOD_CONFIGURATION_ICON = new ResourceLocation("modmenu", "textures/gui/mod_configuration.png");
-	private static final ResourceLocation ERROR_ICON = new ResourceLocation("minecraft", "textures/gui/world_selection.png");
+	private static final ResourceLocation MOD_CONFIGURATION_ICON = new ResourceLocation("textures/gui/mod_configuration.png");
+	private static final ResourceLocation ERROR_ICON = new ResourceLocation("textures/gui/world_selection.png");
 
 	protected final Minecraft client;
 	public final Mod mod;

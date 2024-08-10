@@ -15,6 +15,7 @@ import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.*;
 import net.minecraft.DynamicTexture;
 import net.minecraft.I18n;
+import net.xiaoyu233.fml.FishModLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class FabricMod implements Mod {
-	private static final Logger LOGGER = LogManager.getLogger("Mod Menu | FabricMod");
+	private static final Logger LOGGER = LogManager.getLogger("Mod Menu | FishMod");
 
 	protected final ModContainer container;
 	protected final ModMetadata metadata;
@@ -51,7 +52,7 @@ public class FabricMod implements Mod {
 		this.container = modContainer;
 		this.metadata = modContainer.getMetadata();
 
-		if ("minecraft".equals(metadata.getId()) || "fabricloader".equals(metadata.getId()) || "java".equals(metadata.getId()) || "quilt_loader".equals(metadata.getId())) {
+		if ("minecraft".equals(metadata.getId()) || "fishmodloader".equals(metadata.getId()) || "java".equals(metadata.getId())) {
 			allowsUpdateChecks = false;
 		}
 
@@ -103,7 +104,7 @@ public class FabricMod implements Mod {
 			modMenuData.fillParentIfEmpty("osl");
 			modMenuData.badges.add(Badge.LIBRARY);
 		}
-		if (id.startsWith("fabric") && (id.equals("fabricloader") || metadata.getProvides().contains("fabricloader")) || (id.equals("osl") || metadata.getProvides().contains("osl"))) {
+		if (id.startsWith("fishmodloader") && (id.equals("fishmodloader") || metadata.getProvides().contains("fishmodloader")) || (id.equals("osl") || metadata.getProvides().contains("osl"))) {
 			modMenuData.badges.add(Badge.LIBRARY);
 		}
 
@@ -112,10 +113,10 @@ public class FabricMod implements Mod {
 		if (this.metadata.getEnvironment() == ModEnvironment.CLIENT) {
 			badges.add(Badge.CLIENT);
 		}
-		if (OptionalUtil.isPresentAndTrue(CustomValueUtil.getBoolean("fabric-loom:generated", metadata)) || "java".equals(id)) {
+		if (OptionalUtil.isPresentAndTrue(CustomValueUtil.getBoolean("fml-loom:generated", metadata)) || "java".equals(id)) {
 			badges.add(Badge.LIBRARY);
 		}
-		if ("deprecated".equals(CustomValueUtil.getString("fabric-api:module-lifecycle", metadata).orElse(null))) {
+		if ("deprecated".equals(CustomValueUtil.getString("fml-api:module-lifecycle", metadata).orElse(null))) {
 			badges.add(Badge.DEPRECATED);
 		}
 		if (metadata.containsCustomValue("patchwork:patcherMeta")) {
@@ -155,14 +156,14 @@ public class FabricMod implements Mod {
 			iconPath = "assets/" + ModMenu.MOD_ID + "/java_icon.png";
 		}
 		final String finalIconSourceId = iconSourceId;
-		ModContainer iconSource = FabricLoader.getInstance().getModContainer(iconSourceId).orElseThrow(() -> new RuntimeException("Cannot get ModContainer for Fabric mod with id " + finalIconSourceId));
+		ModContainer iconSource = FishModLoader.getModContainer(iconSourceId).orElseThrow(() -> new RuntimeException("Cannot get ModContainer for Fabric mod with id " + finalIconSourceId));
 		DynamicTexture icon = iconHandler.createIcon(iconSource, iconPath);
 		if (icon == null) {
 			if (defaultIconWarning) {
 				LOGGER.warn("Warning! Mod {} has a broken icon, loading default icon", metadata.getId());
 				defaultIconWarning = false;
 			}
-			return iconHandler.createIcon(FabricLoader.getInstance().getModContainer(ModMenu.MOD_ID).orElseThrow(() -> new RuntimeException("Cannot get ModContainer for Fabric mod with id " + ModMenu.MOD_ID)), "assets/" + ModMenu.MOD_ID + "/unknown_icon.png");
+			return iconHandler.createIcon(FishModLoader.getModContainer(ModMenu.MOD_ID).orElseThrow(() -> new RuntimeException("Cannot get ModContainer for Fish mod with id " + ModMenu.MOD_ID)), "assets/" + ModMenu.MOD_ID + "/unknown_icon.png");
 		}
 		return icon;
 	}

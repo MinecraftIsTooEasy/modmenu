@@ -2,6 +2,7 @@ package com.terraformersmc.modmenu.util;
 
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.util.mod.Mod;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatMessageComponent;
@@ -25,14 +26,14 @@ public class DrawingUtil {
 			color = 0xFFDD5656;
 		}
 		GL11.glColor4f(1f, 1f, 1f, 1f);
-		Gui.fill(x, y, x + width, y + height, color);
+		Gui.drawRect(x, y, x + width, y + height, color);
 	}
 
 	public static void drawWrappedString(String string, int x, int y, int wrapWidth, int lines, int color) {
 		while (string != null && string.endsWith("\n")) {
 			string = string.substring(0, string.length() - 1);
 		}
-		List<String> strings = CLIENT.fontRenderer.split(string, wrapWidth);
+		List<String> strings = CLIENT.fontRenderer.listFormattedStringToWidth(string, wrapWidth);
 		for (int i = 0; i < strings.size(); i++) {
 			if (i >= lines) {
 				break;
@@ -42,7 +43,7 @@ public class DrawingUtil {
 				renderable += "...";
 			}
 			int x1 = x;
-			if (CLIENT.fontRenderer.isBidirectional()) {
+			if (CLIENT.fontRenderer.getBidiFlag()) {
 				int width = CLIENT.fontRenderer.getStringWidth(renderable);
 				x1 += (float) (wrapWidth - width);
 			}
@@ -56,7 +57,7 @@ public class DrawingUtil {
 		Gui.drawRect(x + 1, y + 1 + CLIENT.fontRenderer.FONT_HEIGHT - 1, x + tagWidth, y + CLIENT.fontRenderer.FONT_HEIGHT + 1, outlineColor);
 		Gui.drawRect( x + tagWidth, y, x + tagWidth + 1, y + CLIENT.fontRenderer.FONT_HEIGHT, outlineColor);
 		Gui.drawRect( x + 1, y, x + tagWidth, y + CLIENT.fontRenderer.FONT_HEIGHT, fillColor);
-		String s = text.buildString(true);
+		String s = text.toStringWithFormatting(true);
 		CLIENT.fontRenderer.drawString(s, (int) (x + 1 + (tagWidth - CLIENT.fontRenderer.getStringWidth(s)) / (float) 2), y + 1, textColor);
 	}
 

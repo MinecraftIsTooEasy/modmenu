@@ -23,13 +23,13 @@ public class ModMenuOptionsScreen extends GuiScreen {
 	}
 
 	@Override
-	public void init() {
+	public void initGui() {
 		this.list = new ConfigOptionListWidget(this.mc, this.width, this.height, 32, this.height - 32, 25, ModMenuConfig.asOptions());
 		this.buttonList.add(new GuiButton(DONE, this.width / 2 - 100, this.height - 27, 200, 20, I18n.getString("gui.done")));
 	}
 
 	@Override
-	public void render(int mouseX, int mouseY, float delta) {
+	public void drawScreen(int mouseX, int mouseY, float delta) {
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		this.drawDefaultBackground();
@@ -53,7 +53,7 @@ public class ModMenuOptionsScreen extends GuiScreen {
 	}
 
 	@Override
-	public void buttonClicked(GuiButton button) {
+	public void actionPerformed(GuiButton button) {
 		switch (button.id) {
 		case DONE:
 			ModMenuConfigManager.save();
@@ -63,7 +63,7 @@ public class ModMenuOptionsScreen extends GuiScreen {
 	}
 
 	@Override
-	public void removed() {
+	public void onGuiClosed() {
 		ModMenuConfigManager.save();
 	}
 }

@@ -9,12 +9,13 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.Tessellator;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 @Environment(EnvType.CLIENT)
-public class BufferBuilder {
+public class BufferBuilder extends Tessellator {
 	private static boolean f_5537920;
 	private static boolean f_6972226;
 	private ByteBuffer byteBuffer;

@@ -7,7 +7,7 @@ import com.terraformersmc.modmenu.gui.ModsScreen;
 import com.terraformersmc.modmenu.gui.widget.ModMenuButtonWidget;
 import com.terraformersmc.modmenu.gui.widget.UpdateCheckerTexturedButtonWidget;
 
-import net.minecraft.GuiMainMenu;
+import net.minecraft.GuiIngameMenu;
 import net.minecraft.GuiScreen;
 import net.minecraft.GuiButton;
 import net.minecraft.ResourceLocation;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GuiMainMenu.class)
+@Mixin(GuiIngameMenu.class)
 public abstract class MixinGameMenu extends GuiScreen {
 	/** button id for gui.advancements button */
 	private static final int ADVANCEMENTS = 5;
@@ -27,8 +27,8 @@ public abstract class MixinGameMenu extends GuiScreen {
 	private static final int SHARE_TO_LAN = 7;
 	/** button id for modmenu.title button */
 	private static final int MODS = 69;
-	private static final ResourceLocation FABRIC_ICON_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/mods_button.png");
-	@Inject(method = "init", at = @At(value = "TAIL"))
+	private static final ResourceLocation FABRIC_ICON_BUTTON_LOCATION = new ResourceLocation("textures/gui/mods_button.png");
+	@Inject(method = "initGui", at = @At(value = "TAIL"))
 	private void onInit(CallbackInfo ci) {
 		if (ModMenuConfig.MODIFY_GAME_MENU.getValue()) {
 			final ModMenuConfig.GameMenuButtonStyle style = ModMenuConfig.GAME_MENU_BUTTON_STYLE.getValue();
@@ -38,47 +38,47 @@ public abstract class MixinGameMenu extends GuiScreen {
 			int modsButtonY = -1;
 			int modsButtonWidth = -1;
 			int modsButtonHeight = 20;
-			for (int i = 0; i < this.buttons.size(); i++) {
-				final GuiButton button = (GuiButton) this.buttons.get(i);
+			for (int i = 0; i < this.buttonList.size(); i++) {
+				final GuiButton button = (GuiButton) this.buttonList.get(i);
 				if (style == ModMenuConfig.GameMenuButtonStyle.BELOW_ADVANCEMENTS && button.id == ADVANCEMENTS) {
-					modsButtonX = button.x;
+					modsButtonX = button.xPosition;
 					modsButtonWidth = ((AccessorButtonWidget) button).getWidth();
 				}
 				if (style == ModMenuConfig.GameMenuButtonStyle.BELOW_STATISTICS && button.id == STATS) {
-					modsButtonX = button.x;
+					modsButtonX = button.xPosition;
 					modsButtonWidth = ((AccessorButtonWidget) button).getWidth();
 				}
 				if (style == ModMenuConfig.GameMenuButtonStyle.BELOW_ADVANCEMENTS_AND_STATISTICS && button.id == ADVANCEMENTS) {
-					modsButtonX = button.x;
+					modsButtonX = button.xPosition;
 					modsButtonWidth = 2 * ((AccessorButtonWidget) button).getWidth() + spacing;
 				}
 				if (style == ModMenuConfig.GameMenuButtonStyle.ICON && button.id == STATS) {
-					modsButtonX = button.x + ((AccessorButtonWidget) button).getWidth() + spacing;
+					modsButtonX = button.xPosition + ((AccessorButtonWidget) button).getWidth() + spacing;
 					modsButtonWidth = modsButtonHeight;
 				}
 				if (button.id == SHARE_TO_LAN) {
 					modsButtonIndex = i + 1;
 					if (style == ModMenuConfig.GameMenuButtonStyle.ICON) {
-						modsButtonY = button.y;
+						modsButtonY = button.yPosition;
 					} else {
-						modsButtonY = button.y - spacing - modsButtonHeight;
+						modsButtonY = button.yPosition - spacing - modsButtonHeight;
 					}
 				}
 			}
 			if (modsButtonIndex != -1) {
 				if (style == ModMenuConfig.GameMenuButtonStyle.ICON) {
-					this.buttons.add(new UpdateCheckerTexturedButtonWidget(MODS, modsButtonX, modsButtonY, modsButtonWidth, modsButtonHeight, 0, 0, 20, FABRIC_ICON_BUTTON_LOCATION, 32, 64));
+					this.buttonList.add(new UpdateCheckerTexturedButtonWidget(MODS, modsButtonX, modsButtonY, modsButtonWidth, modsButtonHeight, 0, 0, 20, FABRIC_ICON_BUTTON_LOCATION, 32, 64));
 				} else {
-					this.buttons.add(new ModMenuButtonWidget(MODS, modsButtonX, modsButtonY, modsButtonWidth, modsButtonHeight, ModMenuApi.createModsButtonText()));
+					this.buttonList.add(new ModMenuButtonWidget(MODS, modsButtonX, modsButtonY, modsButtonWidth, modsButtonHeight, ModMenuApi.createModsButtonText()));
 				}
 			}
 		}
 	}
 
-	@Inject(method = "buttonClicked", at = @At(value = "HEAD"))
+	@Inject(method = "actionPerformed", at = @At(value = "HEAD"))
 	private void onButtonClicked(GuiButton button, CallbackInfo ci) {
 		if (button.id == MODS) {
-			this.minecraft.openScreen(new ModsScreen(this));
+			this.mc.displayGuiScreen(new ModsScreen(this));
 		}
 	}
 }

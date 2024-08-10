@@ -12,9 +12,9 @@ public class UpdateCheckerTexturedButtonWidget extends TexturedButtonWidget {
 	}
 
 	@Override
-	public void render(Minecraft minecraft, int mouseX, int mouseY) {
-		super.render(minecraft, mouseX, mouseY);
-		if (this.visible && ModMenuConfig.BUTTON_UPDATE_BADGE.getValue() && ModMenu.areModUpdatesAvailable()) {
+	public void drawButton(Minecraft minecraft, int mouseX, int mouseY) {
+		super.drawButton(minecraft, mouseX, mouseY);
+		if (this.drawButton && ModMenuConfig.BUTTON_UPDATE_BADGE.getValue() && ModMenu.areModUpdatesAvailable()) {
 			UpdateAvailableBadge.renderBadge(this.xPosition + this.width - 5, this.yPosition - 3);
 		}
 	}

@@ -222,7 +222,7 @@ public abstract class EntryListWidget extends GuiSlot {
 				bufferBuilder.end();
 				GL11.glEnable(3553);
 			}
-			this.renderEntry(i, x, entryY, slotHeight, bufferBuilder);
+			this.drawSlot(i, x, entryY, slotHeight, bufferBuilder);
 		}
 	}
 
@@ -241,7 +241,7 @@ public abstract class EntryListWidget extends GuiSlot {
 		bufferBuilder.end();
 	}
 
-	@Override
+//	@Override
 	protected void drawSlot(int index, int x, int y, int slotHeight, BufferBuilder bufferBuilder) {
 		this.getEntry(index).render(index, x, y, this.getRowWidth(), slotHeight, bufferBuilder, mouseX, mouseY, this.func_77210_c(mouseX, mouseY) == index);
 	}

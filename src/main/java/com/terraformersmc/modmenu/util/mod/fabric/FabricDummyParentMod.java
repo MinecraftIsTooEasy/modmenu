@@ -7,6 +7,7 @@ import com.terraformersmc.modmenu.util.mod.ModrinthData;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.DynamicTexture;
+import net.xiaoyu233.fml.FishModLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,8 +34,8 @@ public class FabricDummyParentMod implements Mod {
 		if (parentData != null) {
 			return parentData.getName().orElse("");
 		}
-		if (id.equals("fabric-api")) {
-			return "Fabric API";
+		if (id.equals("fml-api")) {
+			return "Fish API";
 		}
 		return id;
 	}
@@ -52,14 +53,14 @@ public class FabricDummyParentMod implements Mod {
 		}
 		if (iconPath == null) {
 			iconSourceId = ModMenu.MOD_ID;
-			if (id.equals("fabric-api")) {
+			if (id.equals("fml-api")) {
 				iconPath = "assets/" + ModMenu.MOD_ID + "/fabric.png";
 			} else {
 				iconPath = "assets/" + ModMenu.MOD_ID + "/unknown_parent.png";
 			}
 		}
 		final String finalIconSourceId = iconSourceId;
-		ModContainer iconSource = FabricLoader.getInstance().getModContainer(iconSourceId).orElseThrow(() -> new RuntimeException("Cannot get ModContainer for Fabric mod with id " + finalIconSourceId));
+		ModContainer iconSource = FishModLoader.getModContainer(iconSourceId).orElseThrow(() -> new RuntimeException("Cannot get ModContainer for Fish mod with id " + finalIconSourceId));
 		return Objects.requireNonNull(iconHandler.createIcon(iconSource, iconPath), "Mod icon for " + getId() + " is null somehow (should be filled with default in this case)");
 	}
 
@@ -104,7 +105,7 @@ public class FabricDummyParentMod implements Mod {
 			return parentData.getBadges();
 		}
 		Set<Badge> badges = new HashSet<Badge>();
-		if (id.equals("fabric-api")) {
+		if (id.equals("fish-api")) {
 			badges.add(Badge.LIBRARY);
 		}
 

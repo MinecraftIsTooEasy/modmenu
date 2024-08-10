@@ -9,7 +9,7 @@ import net.minecraft.Locale;
 @Mixin(I18n.class)
 public interface AccessorI18n {
 
-	@Accessor("translations")
+	@Accessor("i18nLocale")
 	public static Locale getTranslations() {
 		throw new UnsupportedOperationException();
 	}

@@ -18,18 +18,10 @@ import com.terraformersmc.modmenu.util.TranslationUtil;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import com.terraformersmc.modmenu.util.mod.ModBadgeRenderer;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.*;
+import net.minecraft.GuiConfirmOpenLink;
 import net.minecraft.GuiScreen;
-import net.minecraft.Minecraft;
-import net.minecraft.Gui;
-import net.minecraft.ConfirmChatLinkScreen;
-import net.minecraft.GuiScreen;
-import net.minecraft.GuiButton;
-import net.minecraft.GuiTextField;
-import net.minecraft.ItemRenderer;
-import net.minecraft.I18n;
-import net.minecraft.ResourceLocation;
-import net.minecraft.EnumChatFormatting;
-import net.minecraft.ChatMessageComponent;
+import net.xiaoyu233.fml.FishModLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -42,8 +34,8 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 public class ModsScreen extends GuiScreen implements Controller {
-	private static final ResourceLocation FILTERS_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/filters_button.png");
-	private static final ResourceLocation CONFIGURE_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/configure_button.png");
+	private static final ResourceLocation FILTERS_BUTTON_LOCATION = new ResourceLocation("textures/gui/filters_button.png");
+	private static final ResourceLocation CONFIGURE_BUTTON_LOCATION = new ResourceLocation("textures/gui/configure_button.png");
 
 	private static final int SEARCH_BOX = 0;
 	private static final int DESCRIPTION_LIST = 1;
@@ -55,10 +47,10 @@ public class ModsScreen extends GuiScreen implements Controller {
 	private static final int MODS_FOLDER = 7;
 	private static final int DONE = 8;
 	public static final int MODS_LIST_CONFIRM_ID_OFFSET = 10;
-	private static final ChatMessageComponent TOGGLE_FILTER_OPTIONS = ChatMessageComponent.translatable("modmenu.toggleFilterOptions");
-	private static final ChatMessageComponent CONFIGURE = ChatMessageComponent.translatable("modmenu.configure");
+	private static final ChatMessageComponent TOGGLE_FILTER_OPTIONS = ChatMessageComponent.createFromTranslationKey("modmenu.toggleFilterOptions");
+	private static final ChatMessageComponent CONFIGURE = ChatMessageComponent.createFromTranslationKey("modmenu.configure");
 	private static final Logger LOGGER = LogManager.getLogger("Mod Menu | ModsScreen");
-	private static ItemRenderer itemRenderer = new ItemRenderer();
+	private static RenderItem itemRenderer = new RenderItem();
 	private GuiTextField searchBox;
 	private DescriptionListWidget descriptionListWidget;
 	private final ChatMessageComponent title;
@@ -86,7 +78,7 @@ public class ModsScreen extends GuiScreen implements Controller {
 	public final Map<String, Throwable> modScreenErrors = new HashMap<>();
 
 	public ModsScreen(GuiScreen previousScreen) {
-		this.title = ChatMessageComponent.translatable("modmenu.title");
+		this.title = ChatMessageComponent.createFromTranslationKey("modmenu.title");
 		this.previousScreen = previousScreen;
 	}
 
@@ -96,8 +88,8 @@ public class ModsScreen extends GuiScreen implements Controller {
 	}
 
 	@Override
-	public void handleMouse() {
-		super.handleMouse();
+	public void handleMouseInput() {
+		super.handleMouseInput();
 		if (modList.isMouseInList(mouseX, mouseY)) {
 //			this.modList.handleMouse();
 		} else if (descriptionListWidget.isMouseInList(mouseX, mouseY)) {
@@ -106,12 +98,12 @@ public class ModsScreen extends GuiScreen implements Controller {
 	}
 
 	@Override
-	public void tick() {
-		this.searchBox.tick();
+	public void updateScreen() {
+		this.searchBox.updateCursorCounter();
 	}
 
 	@Override
-	public void init() {
+	public void initGui() {
 		paneY = ModMenuConfig.CONFIG_MODE.getValue() ? 48 : 48 + 19;
 		paneWidth = this.width / 2 - 8;
 		rightPaneX = width - paneWidth;
@@ -120,7 +112,7 @@ public class ModsScreen extends GuiScreen implements Controller {
 		int searchWidthMax = paneWidth - 32 - filtersButtonSize;
 		int searchBoxWidth = ModMenuConfig.CONFIG_MODE.getValue() ? Math.min(200, searchWidthMax) : searchWidthMax;
 		searchBoxX = paneWidth / 2 - searchBoxWidth / 2 - filtersButtonSize / 2;
-		this.searchBox = new GuiTextField(this.textRenderer, searchBoxX, 22, searchBoxWidth, 20);
+		this.searchBox = new GuiTextField(this.fontRenderer, searchBoxX, 22, searchBoxWidth, 20);
 		((TextFieldAccess) this.searchBox).setController(this);
 
 		for (Mod mod : ModMenu.MODS.values()) {
@@ -141,121 +133,123 @@ public class ModsScreen extends GuiScreen implements Controller {
 			}
 		}
 
-		this.modList = new ModListWidget(this.minecraft, paneWidth, this.height, paneY, this.height - 36, ModMenuConfig.COMPACT_LIST.getValue() ? 23 : 36, this.searchBox.getText(), this.modList, this);
+		this.modList = new ModListWidget(this.mc, paneWidth, this.height, paneY, this.height - 36, ModMenuConfig.COMPACT_LIST.getValue() ? 23 : 36, this.searchBox.getText(), this.modList, this);
 		this.modList.setX(0);
 		modList.reloadFilters();
 
-		this.descriptionListWidget = new DescriptionListWidget(this.minecraft, paneWidth, this.height, RIGHT_PANE_Y + 60, this.height - 36, textRenderer.fontHeight + 1, this);
+		this.descriptionListWidget = new DescriptionListWidget(this.mc, paneWidth, this.height, RIGHT_PANE_Y + 60, this.height - 36, fontRenderer.FONT_HEIGHT + 1, this);
 		this.descriptionListWidget.setX(rightPaneX);
 		GuiButton configureButton = new TexturedButtonWidget(DESCRIPTION_LIST, width - 24, RIGHT_PANE_Y, 20, 20, 0, 0, 20, CONFIGURE_BUTTON_LOCATION, 32, 64) {
 			private ChatMessageComponent tooltip;
+
 			@Override
-			public void render(Minecraft minecraft, int mouseX, int mouseY) {
-				String modId = selected.getMod().getId();
+			public void drawButton(Minecraft minecraft, int mouseX, int mouseY) {
+				String modId = selected.mod.getId();
 				if (selected != null) {
-					active = modHasConfigScreen.get(modId);
+					enabled = modHasConfigScreen.get(modId);
 				} else {
-					active = false;
-					visible = false;
+					enabled = false;
+					drawButton = false;
 				}
-				visible = selected != null && modHasConfigScreen.get(modId) || modScreenErrors.containsKey(modId);
+				drawButton = selected != null && modHasConfigScreen.get(modId) || modScreenErrors.containsKey(modId);
 				if (modScreenErrors.containsKey(modId)) {
 					Throwable e = modScreenErrors.get(modId);
-					this.tooltip = ChatMessageComponent.translatable("modmenu.configure.error", modId, modId).appendLiteral("\n\n").appendLiteral(e.toString()).setColor(EnumChatFormatting.RED);
+					this.tooltip = ChatMessageComponent.createFromTranslationWithSubstitutions("modmenu.configure.error", modId, modId).addText("\n\n").addText(e.toString()).setColor(EnumChatFormatting.RED);
 				} else {
 					this.tooltip = CONFIGURE;
 				}
-				super.render(minecraft, mouseX, mouseY);
+				super.drawButton(minecraft, mouseX, mouseY);
 			}
 
 			@Override
-			public void renderTooltip(int mouseX, int mouseY) {
-				ModsScreen.this.renderTooltip(this.tooltip.buildString(true), mouseX, mouseY);
+			public void func_82251_b(int mouseX, int mouseY) {
+				ModsScreen.this.renderTooltip(this.tooltip.toStringWithFormatting(true), mouseX, mouseY);
 			}
 		};
 		int urlButtonWidths = paneWidth / 2 - 2;
 		int cappedButtonWidth = Math.min(urlButtonWidths, 200);
-		GuiButton websiteButton = new GuiButton(WEBSITE, rightPaneX + (urlButtonWidths / 2) - (cappedButtonWidth / 2), RIGHT_PANE_Y + 36, Math.min(urlButtonWidths, 200), 20, I18n.translate("modmenu.website")) {
+		GuiButton websiteButton = new GuiButton(WEBSITE, rightPaneX + (urlButtonWidths / 2) - (cappedButtonWidth / 2), RIGHT_PANE_Y + 36, Math.min(urlButtonWidths, 200), 20, I18n.getString("modmenu.website")) {
+
 			@Override
-			public void render(Minecraft minecraft, int mouseX, int mouseY) {
-				visible = selected != null;
-				active = visible && selected.getMod().getWebsite() != null;
-				super.render(minecraft, mouseX, mouseY);
+			public void drawButton(Minecraft minecraft, int mouseX, int mouseY) {
+				drawButton = selected != null;
+				enabled = drawButton && selected.getMod().getWebsite() != null;
+				super.drawButton(minecraft, mouseX, mouseY);
 			}
 		};
-		GuiButton issuesButton = new GuiButton(ISSUES, rightPaneX + urlButtonWidths + 4 + (urlButtonWidths / 2) - (cappedButtonWidth / 2), RIGHT_PANE_Y + 36, Math.min(urlButtonWidths, 200), 20, I18n.translate("modmenu.issues")) {
+		GuiButton issuesButton = new GuiButton(ISSUES, rightPaneX + urlButtonWidths + 4 + (urlButtonWidths / 2) - (cappedButtonWidth / 2), RIGHT_PANE_Y + 36, Math.min(urlButtonWidths, 200), 20, I18n.getString("modmenu.issues")) {
 			@Override
-			public void render(Minecraft minecraft, int mouseX, int mouseY) {
-				visible = selected != null;
-				active = visible && selected.getMod().getIssueTracker() != null;
-				super.render(minecraft, mouseX, mouseY);
+			public void drawButton(Minecraft minecraft, int mouseX, int mouseY) {
+				drawButton = selected != null;
+				enabled = drawButton && selected.getMod().getIssueTracker() != null;
+				super.drawButton(minecraft, mouseX, mouseY);
 			}
 		};
 		GuiButton filtersButton = new TexturedButtonWidget(FILTERS, paneWidth / 2 + searchBoxWidth / 2 - 20 / 2 + 2, 22, 20, 20, 0, 0, 20, FILTERS_BUTTON_LOCATION, 32, 64) {
 			@Override
-			public void renderTooltip(int mouseX, int mouseY) {
-				ModsScreen.this.renderTooltip(TOGGLE_FILTER_OPTIONS.buildString(true), mouseX, mouseY);
+			public void func_82251_b(int mouseX, int mouseY) {
+				ModsScreen.this.renderTooltip(TOGGLE_FILTER_OPTIONS.toStringWithFormatting(true), mouseX, mouseY);
 			}
 		};
 		if (!ModMenuConfig.CONFIG_MODE.getValue()) {
-			this.buttons.add(filtersButton);
+			this.buttonList.add(filtersButton);
 		}
 		String showLibrariesText = ModMenuConfig.SHOW_LIBRARIES.getValueLabel();
 		String sortingText = ModMenuConfig.SORTING.getValueLabel();
-		int showLibrariesWidth = textRenderer.getWidth(showLibrariesText) + 20;
-		int sortingWidth = textRenderer.getWidth(sortingText) + 20;
+		int showLibrariesWidth = fontRenderer.getStringWidth(showLibrariesText) + 20;
+		int sortingWidth = fontRenderer.getStringWidth(sortingText) + 20;
 		filtersWidth = showLibrariesWidth + sortingWidth + 2;
 		searchRowWidth = searchBoxX + searchBoxWidth + 22;
 		updateFiltersX();
-		this.buttons.add(new GuiButton(SORTING, filtersX, 45, sortingWidth, 20, sortingText) {
+		this.buttonList.add(new GuiButton(SORTING, filtersX, 45, sortingWidth, 20, sortingText) {
 			@Override
-			public void render(Minecraft minecraft, int mouseX, int mouseY) {
-				visible = filterOptionsShown;
-				this.message = ModMenuConfig.SORTING.getValueLabel();
-				super.render(minecraft, mouseX, mouseY);
+			public void drawButton(Minecraft minecraft, int mouseX, int mouseY) {
+				drawButton = filterOptionsShown;
+				this.displayString = ModMenuConfig.SORTING.getValueLabel();
+				super.drawButton(minecraft, mouseX, mouseY);
 			}
 		});
-		this.buttons.add(new GuiButton(LIBRARIES, filtersX + sortingWidth + 2, 45, showLibrariesWidth, 20, showLibrariesText) {
+		this.buttonList.add(new GuiButton(LIBRARIES, filtersX + sortingWidth + 2, 45, showLibrariesWidth, 20, showLibrariesText) {
 			@Override
-			public void render(Minecraft minecraft, int mouseX, int mouseY) {
-				visible = filterOptionsShown;
-				this.message = ModMenuConfig.SHOW_LIBRARIES.getValueLabel();
-				super.render(minecraft, mouseX, mouseY);
+			public void drawButton(Minecraft minecraft, int mouseX, int mouseY) {
+				drawButton = filterOptionsShown;
+				this.displayString = ModMenuConfig.SHOW_LIBRARIES.getValueLabel();
+				super.drawButton(minecraft, mouseX, mouseY);
 			}
 		});
 		if (!ModMenuConfig.HIDE_CONFIG_BUTTONS.getValue()) {
-			this.buttons.add(configureButton);
+			this.buttonList.add(configureButton);
 		}
-		this.buttons.add(websiteButton);
-		this.buttons.add(issuesButton);
-		this.buttons.add(new GuiButton(MODS_FOLDER, this.width / 2 - 154, this.height - 28, 150, 20, I18n.translate("modmenu.modsFolder")));
-		this.buttons.add(new GuiButton(DONE, this.width / 2 + 4, this.height - 28, 150, 20, I18n.translate("gui.done")));
+		this.buttonList.add(websiteButton);
+		this.buttonList.add(issuesButton);
+		this.buttonList.add(new GuiButton(MODS_FOLDER, this.width / 2 - 154, this.height - 28, 150, 20, I18n.getString("modmenu.modsFolder")));
+		this.buttonList.add(new GuiButton(DONE, this.width / 2 + 4, this.height - 28, 150, 20, I18n.getString("gui.done")));
 		this.searchBox.setFocused(true);
 
 		init = true;
 	}
 
 	@Override
-	public void buttonClicked(GuiButton button) {
+	public void actionPerformed(GuiButton button) {
 		switch (button.id) {
 		case DESCRIPTION_LIST: {
 			final String id = Objects.requireNonNull(selected).getMod().getId();
 			if (modHasConfigScreen.get(id)) {
 				GuiScreen configScreen = ModMenu.getConfigScreen(id, this);
-				minecraft.openScreen(configScreen);
+				mc.displayGuiScreen(configScreen);
 			} else {
-				button.active = false;
+				button.enabled = false;
 			}
 			break;
 		}
 		case WEBSITE: {
 			final Mod mod = Objects.requireNonNull(selected).getMod();
-			minecraft.openScreen(new ConfirmChatLinkScreen(this, mod.getWebsite(), WEBSITE, false));
+			mc.displayGuiScreen(new GuiConfirmOpenLink(this, mod.getWebsite(), WEBSITE, false));
 			break;
 		}
 		case ISSUES: {
 			final Mod mod = Objects.requireNonNull(selected).getMod();
-			minecraft.openScreen(new ConfirmChatLinkScreen(this, mod.getIssueTracker(), ISSUES, false));
+			mc.displayGuiScreen(new GuiConfirmOpenLink(this, mod.getIssueTracker(), ISSUES, false));
 			break;
 		}
 		case FILTERS: {
@@ -275,21 +269,21 @@ public class ModsScreen extends GuiScreen implements Controller {
 			break;
 		}
 		case MODS_FOLDER: {
-			OsUtil.openFolder(new File(FabricLoader.getInstance().getGameDir().toFile(), "mods"));
+			OsUtil.openFolder(new File(String.valueOf(FishModLoader.MOD_DIR)));
 			break;
 		}
 		case DONE: {
-			minecraft.openScreen(previousScreen);
+			mc.displayGuiScreen(previousScreen);
 			break;
 		}
 		}
 	}
 
 	@Override
-	public void keyPressed(char chr, int key) {
-		this.searchBox.keyPressed(chr, key);
+	public void keyTyped(char chr, int key) {
+		this.searchBox.textboxKeyTyped(chr, key);
 		this.modList.reloadFilters();
-		super.keyPressed(chr, key);
+		super.keyTyped(chr, key);
 	}
 
 	@Override
@@ -304,35 +298,35 @@ public class ModsScreen extends GuiScreen implements Controller {
 	}
 
 	@Override
-	public void render(int mouseX, int mouseY, float delta) {
+	public void drawScreen(int mouseX, int mouseY, float delta) {
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		this.tooltip = null;
-		this.drawBackgroundTexture(0);
+		this.drawBackground(0);
 		ModListEntry selectedEntry = selected;
 		if (selectedEntry != null) {
-			this.descriptionListWidget.render(mouseX, mouseY, delta);
+			this.descriptionListWidget.drawScreen(mouseX, mouseY, delta);
 		}
-		this.modList.render(mouseX, mouseY, delta);
-		this.searchBox.render();
+		this.modList.drawScreen(mouseX, mouseY, delta);
+		this.searchBox.drawTextBox();
 		GL11.glDisable(GL11.GL_BLEND);
-		this.drawCenteredString(this.textRenderer, this.title.buildString(true), this.modList.getWidth() / 2, 8, 16777215);
+		this.drawCenteredString(this.fontRenderer, this.title.toStringWithFormatting(true), this.modList.getWidth() / 2, 8, 16777215);
 		if (!ModMenuConfig.CONFIG_MODE.getValue()) {
 			ChatMessageComponent fullModCount = computeModCountText(true);
 			if (!ModMenuConfig.CONFIG_MODE.getValue() && updateFiltersX()) {
 				if (filterOptionsShown) {
-					if (!ModMenuConfig.SHOW_LIBRARIES.getValue() || textRenderer.getWidth(fullModCount.buildString(true)) <= filtersX - 5) {
-						this.textRenderer.draw(fullModCount.buildString(true), searchBoxX, 52, 0xFFFFFF);
+					if (!ModMenuConfig.SHOW_LIBRARIES.getValue() || fontRenderer.getStringWidth(fullModCount.toStringWithFormatting(true)) <= filtersX - 5) {
+						this.fontRenderer.drawString(fullModCount.toStringWithFormatting(true), searchBoxX, 52, 0xFFFFFF);
 					} else {
-						this.textRenderer.draw(computeModCountText(false).buildString(true), searchBoxX, 46, 0xFFFFFF);
-						this.textRenderer.draw(computeLibraryCountText().buildString(true), searchBoxX, 57, 0xFFFFFF);
+						this.fontRenderer.drawString(computeModCountText(false).toStringWithFormatting(true), searchBoxX, 46, 0xFFFFFF);
+						this.fontRenderer.drawString(computeLibraryCountText().toStringWithFormatting(true), searchBoxX, 57, 0xFFFFFF);
 					}
 				} else {
-					if (!ModMenuConfig.SHOW_LIBRARIES.getValue() || textRenderer.getWidth(fullModCount.buildString(true)) <= modList.getWidth() - 5) {
-						this.textRenderer.draw(fullModCount.buildString(true), searchBoxX, 52, 0xFFFFFF);
+					if (!ModMenuConfig.SHOW_LIBRARIES.getValue() || fontRenderer.getStringWidth(fullModCount.toStringWithFormatting(true)) <= modList.getWidth() - 5) {
+						this.fontRenderer.drawString(fullModCount.toStringWithFormatting(true), searchBoxX, 52, 0xFFFFFF);
 					} else {
-						this.textRenderer.draw(computeModCountText(false).buildString(true), searchBoxX, 46, 0xFFFFFF);
-						this.textRenderer.draw(computeLibraryCountText().buildString(true), searchBoxX, 57, 0xFFFFFF);
+						this.fontRenderer.drawString(computeModCountText(false).toStringWithFormatting(true), searchBoxX, 46, 0xFFFFFF);
+						this.fontRenderer.drawString(computeLibraryCountText().toStringWithFormatting(true), searchBoxX, 57, 0xFFFFFF);
 					}
 				}
 			}
@@ -345,31 +339,31 @@ public class ModsScreen extends GuiScreen implements Controller {
 			}
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			GL11.glEnable(GL11.GL_BLEND);
-			this.minecraft.getTextureManager().bind(this.selected.getIconTexture());
+			this.mc.getTextureManager().bindTexture(this.selected.getIconTexture());
 			DrawingUtil.drawTexture(x, RIGHT_PANE_Y, 0.0F, 0.0F, 32, 32, 32, 32);
 			GL11.glDisable(GL11.GL_BLEND);
-			int lineSpacing = textRenderer.fontHeight + 1;
+			int lineSpacing = fontRenderer.FONT_HEIGHT + 1;
 			int imageOffset = 36;
-			ChatMessageComponent name = ChatMessageComponent.literal(mod.getTranslatedName());
+			ChatMessageComponent name = ChatMessageComponent.createFromText(mod.getTranslatedName());
 			ChatMessageComponent trimmedName = name;
 			int maxNameWidth = this.width - (x + imageOffset);
-			if (textRenderer.getWidth(name.buildString(true)) > maxNameWidth) {
-				ChatMessageComponent ellipsis = ChatMessageComponent.literal("...");
-				trimmedName = ChatMessageComponent.literal("").appendLiteral(textRenderer.trim(name.buildString(true), maxNameWidth - textRenderer.getWidth(ellipsis.buildString(true)))).append(ellipsis);
+			if (fontRenderer.getStringWidth(name.toStringWithFormatting(true)) > maxNameWidth) {
+				ChatMessageComponent ellipsis = ChatMessageComponent.createFromText("...");
+				trimmedName = ChatMessageComponent.createFromText("").addText(fontRenderer.trimStringToWidth(name.toStringWithFormatting(true), maxNameWidth - fontRenderer.getStringWidth(ellipsis.toStringWithFormatting(true)))).appendComponent(ellipsis);
 			}
-			this.textRenderer.draw(trimmedName.buildString(true), x + imageOffset, RIGHT_PANE_Y + 1, 0xFFFFFF);
-			if (mouseX > x + imageOffset && mouseY > RIGHT_PANE_Y + 1 && mouseY < RIGHT_PANE_Y + 1 + textRenderer.fontHeight && mouseX < x + imageOffset + textRenderer.getWidth(trimmedName.buildString(true))) {
-				setTooltip(Arrays.asList(I18n.translate("modmenu.modIdToolTip", mod.getId())));
+			this.fontRenderer.drawString(trimmedName.toStringWithFormatting(true), x + imageOffset, RIGHT_PANE_Y + 1, 0xFFFFFF);
+			if (mouseX > x + imageOffset && mouseY > RIGHT_PANE_Y + 1 && mouseY < RIGHT_PANE_Y + 1 + fontRenderer.FONT_HEIGHT && mouseX < x + imageOffset + fontRenderer.getStringWidth(trimmedName.toStringWithFormatting(true))) {
+				setTooltip(Arrays.asList(I18n.getStringParams("modmenu.modIdToolTip", mod.getId())));
 			}
 			if (init || modBadgeRenderer == null || modBadgeRenderer.getMod() != mod) {
-				modBadgeRenderer = new ModBadgeRenderer(x + imageOffset + this.minecraft.textRenderer.getWidth(trimmedName.buildString(true)) + 2, RIGHT_PANE_Y, width - 28, selectedEntry.mod, this);
+				modBadgeRenderer = new ModBadgeRenderer(x + imageOffset + this.mc.fontRenderer.getStringWidth(trimmedName.toStringWithFormatting(true)) + 2, RIGHT_PANE_Y, width - 28, selectedEntry.mod, this);
 				init = false;
 			}
 			if (!ModMenuConfig.HIDE_BADGES.getValue()) {
 				modBadgeRenderer.draw(mouseX, mouseY);
 			}
 			if (mod.isReal()) {
-				this.textRenderer.draw(mod.getPrefixedVersion(), x + imageOffset, RIGHT_PANE_Y + 2 + lineSpacing, 0x808080);
+				this.fontRenderer.drawString(mod.getPrefixedVersion(), x + imageOffset, RIGHT_PANE_Y + 2 + lineSpacing, 0x808080);
 			}
 			String authors;
 			List<String> names = mod.getAuthors();
@@ -380,10 +374,10 @@ public class ModsScreen extends GuiScreen implements Controller {
 				} else {
 					authors = names.get(0);
 				}
-				DrawingUtil.drawWrappedString(I18n.translate("modmenu.authorPrefix", authors), x + imageOffset, RIGHT_PANE_Y + 2 + lineSpacing * 2, paneWidth - imageOffset - 4, 1, 0x808080);
+				DrawingUtil.drawWrappedString(I18n.getStringParams("modmenu.authorPrefix", authors), x + imageOffset, RIGHT_PANE_Y + 2 + lineSpacing * 2, paneWidth - imageOffset - 4, 1, 0x808080);
 			}
 		}
-		super.render(mouseX, mouseY, delta);
+		super.drawScreen(mouseX, mouseY, delta);
 		if (this.tooltip != null && !this.tooltip.isEmpty()) {
 			this.renderTooltip(this.tooltip, mouseX, mouseY);
 		}
@@ -405,17 +399,17 @@ public class ModsScreen extends GuiScreen implements Controller {
 			int[] rootLibs = formatModCount(ModMenu.ROOT_MODS.values().stream().filter(mod -> !mod.isHidden() && mod.getBadges().contains(Mod.Badge.LIBRARY)).map(Mod::getId).collect(Collectors.toSet()));
 			return TranslationUtil.translateNumeric("modmenu.showingLibraries", rootLibs);
 		} else {
-			return ChatMessageComponent.literal(null);
+			return ChatMessageComponent.createFromText(null);
 		}
 	}
 
 	private int[] formatModCount(Set<String> set) {
-		int visible = modList.getDisplayedCountFor(set);
+		int drawButton = modList.getDisplayedCountFor(set);
 		int total = set.size();
-		if (visible == total) {
+		if (drawButton == total) {
 			return new int[]{total};
 		}
-		return new int[]{visible, total};
+		return new int[]{drawButton, total};
 	}
 
 	public void setTooltip(List<String> tooltip) {
@@ -445,7 +439,7 @@ public class ModsScreen extends GuiScreen implements Controller {
 	}
 
 	private boolean updateFiltersX() {
-		if ((filtersWidth + textRenderer.getWidth(computeModCountText(true).buildString(true)) + 20) >= searchRowWidth && ((filtersWidth + textRenderer.getWidth(computeModCountText(false).buildString(true)) + 20) >= searchRowWidth || (filtersWidth + textRenderer.getWidth(computeLibraryCountText().buildString(true)) + 20) >= searchRowWidth)) {
+		if ((filtersWidth + fontRenderer.getStringWidth(computeModCountText(true).toStringWithFormatting(true)) + 20) >= searchRowWidth && ((filtersWidth + fontRenderer.getStringWidth(computeModCountText(false).toStringWithFormatting(true)) + 20) >= searchRowWidth || (filtersWidth + fontRenderer.getStringWidth(computeLibraryCountText().toStringWithFormatting(true)) + 20) >= searchRowWidth)) {
 			filtersX = paneWidth / 2 - filtersWidth / 2;
 			return !filterOptionsShown;
 		} else {
@@ -467,9 +461,9 @@ public class ModsScreen extends GuiScreen implements Controller {
 	}
 
 	@Override
-	public void confirmResult(boolean result, int id) {
+	public void confirmClicked(boolean result, int id) {
 		if (id < MODS_LIST_CONFIRM_ID_OFFSET) {
-			super.confirmResult(result, id);
+			super.confirmClicked(result, id);
 			if (result && this.selected != null) {
 				switch (id) {
 				case WEBSITE:
@@ -481,7 +475,7 @@ public class ModsScreen extends GuiScreen implements Controller {
 				}
 			}
 
-			this.minecraft.openScreen(this);
+			this.mc.displayGuiScreen(this);
 		} else {
 			this.descriptionListWidget.confirmResult(result, id);
 		}
@@ -502,7 +496,7 @@ public class ModsScreen extends GuiScreen implements Controller {
 		GL11.glDisable(2929);
 		int n2 = 0;
 		for (String string : text) {
-			n = this.textRenderer.getWidth(string);
+			n = this.fontRenderer.getStringWidth(string);
 			if (n <= n2)
 				continue;
 			n2 = n;
@@ -520,30 +514,30 @@ public class ModsScreen extends GuiScreen implements Controller {
 		if (n4 + n5 + 6 > this.height) {
 			n4 = this.height - n5 - 6;
 		}
-		this.drawOffset = 300.0f;
-		ModsScreen.itemRenderer.zOffset = 300.0f;
+		this.zLevel = 300.0f;
+		ModsScreen.itemRenderer.zLevel = 300.0f;
 		int n6 = -267386864;
-		this.fillGradient(n3 - 3, n4 - 4, n3 + n + 3, n4 - 3, n6, n6);
-		this.fillGradient(n3 - 3, n4 + n5 + 3, n3 + n + 3, n4 + n5 + 4, n6, n6);
-		this.fillGradient(n3 - 3, n4 - 3, n3 + n + 3, n4 + n5 + 3, n6, n6);
-		this.fillGradient(n3 - 4, n4 - 3, n3 - 3, n4 + n5 + 3, n6, n6);
-		this.fillGradient(n3 + n + 3, n4 - 3, n3 + n + 4, n4 + n5 + 3, n6, n6);
+		this.drawGradientRect(n3 - 3, n4 - 4, n3 + n + 3, n4 - 3, n6, n6);
+		this.drawGradientRect(n3 - 3, n4 + n5 + 3, n3 + n + 3, n4 + n5 + 4, n6, n6);
+		this.drawGradientRect(n3 - 3, n4 - 3, n3 + n + 3, n4 + n5 + 3, n6, n6);
+		this.drawGradientRect(n3 - 4, n4 - 3, n3 - 3, n4 + n5 + 3, n6, n6);
+		this.drawGradientRect(n3 + n + 3, n4 - 3, n3 + n + 4, n4 + n5 + 3, n6, n6);
 		int n7 = 0x505000FF;
 		int n8 = (n7 & 0xFEFEFE) >> 1 | n7 & 0xFF000000;
-		this.fillGradient(n3 - 3, n4 - 3 + 1, n3 - 3 + 1, n4 + n5 + 3 - 1, n7, n8);
-		this.fillGradient(n3 + n + 2, n4 - 3 + 1, n3 + n + 3, n4 + n5 + 3 - 1, n7, n8);
-		this.fillGradient(n3 - 3, n4 - 3, n3 + n + 3, n4 - 3 + 1, n7, n7);
-		this.fillGradient(n3 - 3, n4 + n5 + 2, n3 + n + 3, n4 + n5 + 3, n8, n8);
+		this.drawGradientRect(n3 - 3, n4 - 3 + 1, n3 - 3 + 1, n4 + n5 + 3 - 1, n7, n8);
+		this.drawGradientRect(n3 + n + 2, n4 - 3 + 1, n3 + n + 3, n4 + n5 + 3 - 1, n7, n8);
+		this.drawGradientRect(n3 - 3, n4 - 3, n3 + n + 3, n4 - 3 + 1, n7, n7);
+		this.drawGradientRect(n3 - 3, n4 + n5 + 2, n3 + n + 3, n4 + n5 + 3, n8, n8);
 		for (int i = 0; i < text.size(); ++i) {
 			String string = (String) text.get(i);
-			this.textRenderer.drawWithShadow(string, n3, n4, -1);
+			this.fontRenderer.drawStringWithShadow(string, n3, n4, -1);
 			if (i == 0) {
 				n4 += 2;
 			}
 			n4 += 10;
 		}
-		this.drawOffset = 0.0f;
-		ModsScreen.itemRenderer.zOffset = 0.0f;
+		this.zLevel = 0.0f;
+		ModsScreen.itemRenderer.zLevel = 0.0f;
 		GL11.glEnable(2896);
 		GL11.glEnable(2929);
 		Lighting.turnOn();
