@@ -4,40 +4,37 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.IFishModLoader;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.config.ModMenuConfig.GameMenuButtonStyle;
 import com.terraformersmc.modmenu.config.ModMenuConfig.TitleMenuButtonStyle;
 import com.terraformersmc.modmenu.config.ModMenuConfigManager;
-import com.terraformersmc.modmenu.event.ModMenuEventHandler;
-import com.terraformersmc.modmenu.util.GlUtil;
-//import com.terraformersmc.modmenu.util.ModrinthUtil;
+import com.terraformersmc.modmenu.util.FabricUtils;
 import com.terraformersmc.modmenu.util.TranslationUtil;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import com.terraformersmc.modmenu.util.mod.fabric.FabricDummyParentMod;
 import com.terraformersmc.modmenu.util.mod.fabric.FabricMod;
+import io.github.prospector.modmenu.api.ConfigScreenFactory;
+import io.github.prospector.modmenu.api.ModMenuApi;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.GuiScreen;
 import net.minecraft.ChatMessageComponent;
 import net.xiaoyu233.fml.FishModLoader;
+import net.xiaoyu233.fml.ModResourceManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.NumberFormat;
 import java.util.*;
 
-public class ModMenu implements ModInitializer {
+public class ModMenu implements ClientModInitializer {
 	public static final String MOD_ID = "modmenu";
 	public static final String GITHUB_REF = "TerraformersMC/ModMenu";
 	public static final Logger LOGGER = LogManager.getLogger("Mod Menu");
 	public static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
 	public static final Gson GSON_MINIFIED = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+	public static Mod mod = null;
 
 	public static final Map<String, Mod> MODS = new HashMap<>();
 	public static final Map<String, Mod> ROOT_MODS = new HashMap<>();
@@ -47,11 +44,11 @@ public class ModMenu implements ModInitializer {
 	private static List<Map<String, ConfigScreenFactory<?>>> delayedScreenFactoryProviders = new ArrayList<>();
 
 	private static int cachedDisplayedModCount = -1;
-//	public static boolean runningQuilt = FabricLoader.getInstance().isModLoaded("quilt_loader");
+	//	public static boolean runningQuilt = FabricLoader.getInstance().isModLoaded("quilt_loader");
 	public static boolean devEnvironment = FishModLoader.isDevelopmentEnvironment();
 
 	public static GuiScreen getConfigScreen(String modid, GuiScreen menuScreen) {
-		if(!delayedScreenFactoryProviders.isEmpty()) {
+		if (!delayedScreenFactoryProviders.isEmpty()) {
 			delayedScreenFactoryProviders.forEach(map -> map.forEach(configScreenFactories::putIfAbsent));
 			delayedScreenFactoryProviders.clear();
 		}
@@ -65,53 +62,53 @@ public class ModMenu implements ModInitializer {
 		return null;
 	}
 
-////	@Override
-//	public void initClient() {
-//		ModMenuConfigManager.initializeConfig();
-//		Set<String> modpackMods = new HashSet<>();
-//		FishModLoader.getEntrypointContainers("modmenu", ModMenuApi.class).forEach(entrypoint -> {
-//			ModMetadata metadata = entrypoint.getProvider().getMetadata();
-//			String modId = metadata.getId();
-//			try {
-//				ModMenuApi api = entrypoint.getEntrypoint();
-//				configScreenFactories.put(modId, api.getModConfigScreenFactory());
-//				delayedScreenFactoryProviders.add(api.getProvidedConfigScreenFactories());
-//				api.attachModpackBadges(modpackMods::add);
-//			} catch (Throwable e) {
-//				LOGGER.error("Mod {} provides a broken implementation of ModMenuApi", modId, e);
-//			}
-//		});
-//
-//		// Fill mods map
-//		for (ModContainer modContainer : FishModLoader.getModsMap().values()) {
-//			Mod mod = new FabricMod(modContainer, modpackMods);
-//
-//			MODS.put(mod.getId(), mod);
-//		}
-//
-////		ModrinthUtil.checkForUpdates();
-//
-//		Map<String, Mod> dummyParents = new HashMap<>();
-//
-//		// Initialize parent map
-//		for (Mod mod : MODS.values()) {
-//			String parentId = mod.getParent();
-//			if (parentId != null) {
-//				Mod parent = MODS.getOrDefault(parentId, dummyParents.get(parentId));
-//				if (parent == null) {
-//					if (mod instanceof FabricMod) {
-//						parent = new FabricDummyParentMod((FabricMod) mod, parentId);
-//						dummyParents.put(parentId, parent);
-//					}
-//				}
-//				PARENT_MAP.put(parent, mod);
-//			} else {
-//				ROOT_MODS.put(mod.getId(), mod);
-//			}
-//		}
-//		MODS.putAll(dummyParents);
-////		ModMenuEventHandler.register();
-//	}
+	@Override
+	public void onInitializeClient() {
+		ModResourceManager.addResourcePackDomain("modmenu");
+		ModMenuConfigManager.initializeConfig();
+		Set<String> modpackMods = new HashSet<>();
+		FishModLoader.getEntrypointContainers("modmenu", ModMenuApi.class).forEach(entrypoint -> {
+			ModMetadata metadata = entrypoint.getProvider().getMetadata();
+			String modId = metadata.getId();
+			try {
+				ModMenuApi api = entrypoint.getEntrypoint();
+				configScreenFactories.put(modId, api.getModConfigScreenFactory());
+				delayedScreenFactoryProviders.add(api.getProvidedConfigScreenFactories());
+				api.attachModpackBadges(modpackMods::add);
+			} catch (Throwable e) {
+				LOGGER.error("Mod {} provides a broken implementation of ModMenuApi", modId, e);
+			}
+		});
+		// Fill mods map
+		for (ModContainer modContainer : FabricUtils.getAllMods()) {
+			Mod mod = new FabricMod(modContainer, modpackMods);
+
+			MODS.put(mod.getId(), mod);
+		}
+
+//		ModrinthUtil.checkForUpdates();
+
+		Map<String, Mod> dummyParents = new HashMap<>();
+
+		// Initialize parent map
+		for (Mod mod : MODS.values()) {
+			String parentId = mod.getParent();
+			if (parentId != null) {
+				Mod parent = MODS.getOrDefault(parentId, dummyParents.get(parentId));
+				if (parent == null) {
+					if (mod instanceof FabricMod) {
+						parent = new FabricDummyParentMod((FabricMod) mod, parentId);
+						dummyParents.put(parentId, parent);
+					}
+				}
+				PARENT_MAP.put(parent, mod);
+			} else {
+				ROOT_MODS.put(mod.getId(), mod);
+			}
+		}
+		MODS.putAll(dummyParents);
+//		ModMenuEventHandler.register();
+	}
 
 	public static void clearModCountCache() {
 		cachedDisplayedModCount = -1;
@@ -163,7 +160,7 @@ public class ModMenu implements ModInitializer {
 				modsText.appendComponent(ChatMessageComponent.createFromText(" ")).addFormatted("modmenu.loaded.short", count);
 			} else {
 				String specificKey = "modmenu.loaded." + count;
-				String key = TranslationUtil.hasTranslation(specificKey) ? specificKey : "modmenu.loaded";
+				String key = TranslationUtil.hasTranslation(specificKey) ? specificKey : "modmenu.loaded.none";
 				if (ModMenuConfig.EASTER_EGGS.getValue() && TranslationUtil.hasTranslation(specificKey + ".secret")) {
 					key = specificKey + ".secret";
 				}
@@ -171,53 +168,5 @@ public class ModMenu implements ModInitializer {
 			}
 		}
 		return modsText;
-	}
-
-	@Override
-	public void onInitialize() {
-		ModMenuConfigManager.initializeConfig();
-		Set<String> modpackMods = new HashSet<>();
-		FishModLoader.getEntrypointContainers("modmenu", ModMenuApi.class).forEach(entrypoint -> {
-			ModMetadata metadata = entrypoint.getProvider().getMetadata();
-			String modId = metadata.getId();
-			try {
-				ModMenuApi api = entrypoint.getEntrypoint();
-				configScreenFactories.put(modId, api.getModConfigScreenFactory());
-				delayedScreenFactoryProviders.add(api.getProvidedConfigScreenFactories());
-				api.attachModpackBadges(modpackMods::add);
-			} catch (Throwable e) {
-				LOGGER.error("Mod {} provides a broken implementation of ModMenuApi", modId, e);
-			}
-		});
-
-		// Fill mods map
-		for (ModContainer modContainer : FishModLoader.getModsMap().values()) {
-			Mod mod = new FabricMod(modContainer, modpackMods);
-
-			MODS.put(mod.getId(), mod);
-		}
-
-//		ModrinthUtil.checkForUpdates();
-
-		Map<String, Mod> dummyParents = new HashMap<>();
-
-		// Initialize parent map
-		for (Mod mod : MODS.values()) {
-			String parentId = mod.getParent();
-			if (parentId != null) {
-				Mod parent = MODS.getOrDefault(parentId, dummyParents.get(parentId));
-				if (parent == null) {
-					if (mod instanceof FabricMod) {
-						parent = new FabricDummyParentMod((FabricMod) mod, parentId);
-						dummyParents.put(parentId, parent);
-					}
-				}
-				PARENT_MAP.put(parent, mod);
-			} else {
-				ROOT_MODS.put(mod.getId(), mod);
-			}
-		}
-		MODS.putAll(dummyParents);
-//		ModMenuEventHandler.register();
 	}
 }

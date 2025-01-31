@@ -55,7 +55,7 @@ public class DescriptionListWidget extends EntryListWidget {
 	}
 
 	public boolean isMouseInList(int mouseX, int mouseY) {
-		return mouseY >= this.top && mouseY <= this.bottom && mouseX >= this.right && mouseX <= this.left;
+		return mouseY >= this.bottom && mouseY <= this.top && mouseX >= this.left && mouseX <= this.right;
 	}
 
 	@Override
@@ -79,6 +79,70 @@ public class DescriptionListWidget extends EntryListWidget {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float delta) {
+		int getSize = this.getSize();
+		int scrollbarMinX = this.getScrollBarX();
+		int scrollbarMaxX = scrollbarMinX + 6;
+		if (mouseX > this.left && mouseX < this.right && mouseY > this.top && mouseY < this.bottom) {
+			if (Mouse.isButtonDown(0)) {
+				if (this.initialClickY == -1.0f) {
+					int mouseClickMode = 1;
+					if (mouseY >= this.top && mouseY <= this.bottom) {
+						int rowMinX = this.width / 2 - this.getRowWidth() / 2;
+						int rowMaxX = this.width / 2 + this.getRowWidth() / 2;
+						int selectedY = mouseY - this.top - this.field_77242_t + (int) this.amountScrolled - 4;
+						int selectedPos = selectedY / this.slotHeight;
+						if (mouseX >= rowMinX && mouseX <= rowMaxX && selectedPos >= 0 && selectedY >= 0 && selectedPos < getSize) {
+							int selectedIndex = selectedPos == this.selectedElement && Minecraft.getSystemTime() - this.lastClicked < 250L ? 1 : 0;
+							this.elementClicked(selectedPos, selectedIndex != 0);
+							this.selectedElement = selectedPos;
+							this.lastClicked = Minecraft.getSystemTime();
+						} else if (mouseX >= rowMinX && mouseX <= rowMaxX && selectedY < 0) {
+							this.func_77224_a(mouseX - rowMinX, mouseY - this.top + (int) this.amountScrolled - 4);
+							mouseClickMode = 0;
+						}
+						if (mouseX >= scrollbarMinX && mouseX <= scrollbarMaxX) {
+							this.scrollMultiplier = -1.0f;
+							int maxScroll = this.func_77209_d();
+							if (maxScroll < 1) {
+								maxScroll = 1;
+							}
+							int heightForScrolling;
+							if ((heightForScrolling = (int) ((float) ((this.bottom - this.top) * (this.bottom - this.top)) / (float) this.getContentHeight())) < 32) {
+								heightForScrolling = 32;
+							}
+							if (heightForScrolling > this.bottom - this.top - 8) {
+								heightForScrolling = this.bottom - this.top - 8;
+							}
+							this.scrollMultiplier /= (float) (this.bottom - this.top - heightForScrolling) / (float) maxScroll;
+						} else {
+							this.scrollMultiplier = 1.0f;
+						}
+						this.initialClickY = mouseClickMode != 0 ? (float) mouseY : -2.0f;
+					} else {
+						this.initialClickY = -2.0f;
+					}
+				} else if (this.initialClickY >= 0.0f) {
+					this.amountScrolled -= ((float) mouseY - this.initialClickY) * this.scrollMultiplier;
+					this.initialClickY = mouseY;
+				}
+			} else {
+				while (!this.minecraft.gameSettings.touchscreen && Mouse.next()) {
+					int dwheel = Mouse.getEventDWheel();
+					if (dwheel != 0) {
+						if (dwheel > 0) {
+							dwheel = -1;
+						} else if (dwheel < 0) {
+							dwheel = 1;
+						}
+						this.amountScrolled += dwheel * this.slotHeight / 2;
+					}
+					this.minecraft.currentScreen.handleMouseInput();
+				}
+				this.initialClickY = -1.0f;
+			}
+		}
+		this.bindAmountScrolled();
+
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		bindAmountScrolled();

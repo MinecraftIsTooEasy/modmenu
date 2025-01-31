@@ -1,5 +1,6 @@
 package com.terraformersmc.modmenu.gui.widget;
 
+import com.terraformersmc.modmenu.ModMenu;
 import org.lwjgl.opengl.GL11;
 
 import com.terraformersmc.modmenu.util.DrawingUtil;
@@ -8,7 +9,7 @@ import net.minecraft.Minecraft;
 import net.minecraft.ResourceLocation;
 
 public class UpdateAvailableBadge {
-	private static final ResourceLocation UPDATE_ICON = new ResourceLocation("textures/gui/realms/trial_icon.png");
+	private static final ResourceLocation UPDATE_ICON = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/realms/trial_icon.png");
 
 	public static void renderBadge(int x, int y) {
 		GL11.glColor4f(1f, 1f, 1f, 1f);

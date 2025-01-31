@@ -41,9 +41,9 @@ public class ModMenuOptionsScreen extends GuiScreen {
 	@Override
 	public void handleMouseInput() {
 		super.handleMouseInput();
-		if (this.list.isMouseInList(mouseX, mouseY)) {
-	//		this.list.handleMouse();
-		}
+//		if (this.list.isMouseInList(mouseX, mouseY)) {
+//			this.list.handleMouse();
+//		}
 	}
 
 	@Override

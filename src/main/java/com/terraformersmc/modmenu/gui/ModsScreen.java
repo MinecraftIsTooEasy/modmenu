@@ -17,7 +17,6 @@ import com.terraformersmc.modmenu.util.ScreenUtil;
 import com.terraformersmc.modmenu.util.TranslationUtil;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import com.terraformersmc.modmenu.util.mod.ModBadgeRenderer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.*;
 import net.minecraft.GuiConfirmOpenLink;
 import net.minecraft.GuiScreen;
@@ -34,8 +33,8 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 public class ModsScreen extends GuiScreen implements Controller {
-	private static final ResourceLocation FILTERS_BUTTON_LOCATION = new ResourceLocation("textures/gui/filters_button.png");
-	private static final ResourceLocation CONFIGURE_BUTTON_LOCATION = new ResourceLocation("textures/gui/configure_button.png");
+	private static final ResourceLocation FILTERS_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/filters_button.png");
+	private static final ResourceLocation CONFIGURE_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/configure_button.png");
 
 	private static final int SEARCH_BOX = 0;
 	private static final int DESCRIPTION_LIST = 1;
@@ -144,19 +143,21 @@ public class ModsScreen extends GuiScreen implements Controller {
 
 			@Override
 			public void drawButton(Minecraft minecraft, int mouseX, int mouseY) {
-				String modId = selected.mod.getId();
 				if (selected != null) {
-					enabled = modHasConfigScreen.get(modId);
-				} else {
-					enabled = false;
-					drawButton = false;
-				}
-				drawButton = selected != null && modHasConfigScreen.get(modId) || modScreenErrors.containsKey(modId);
-				if (modScreenErrors.containsKey(modId)) {
-					Throwable e = modScreenErrors.get(modId);
-					this.tooltip = ChatMessageComponent.createFromTranslationWithSubstitutions("modmenu.configure.error", modId, modId).addText("\n\n").addText(e.toString()).setColor(EnumChatFormatting.RED);
-				} else {
-					this.tooltip = CONFIGURE;
+					String modId = selected.getMod().getId();
+					if (selected != null) {
+						enabled = modHasConfigScreen.get(modId);
+					} else {
+						enabled = false;
+						drawButton = false;
+					}
+					drawButton = selected != null && modHasConfigScreen.get(modId) || modScreenErrors.containsKey(modId);
+					if (modScreenErrors.containsKey(modId)) {
+						Throwable e = modScreenErrors.get(modId);
+						this.tooltip = ChatMessageComponent.createFromTranslationWithSubstitutions("modmenu.configure.error", modId, modId).addText("\n\n").addText(e.toString()).setColor(EnumChatFormatting.RED);
+					} else {
+						this.tooltip = CONFIGURE;
+					}
 				}
 				super.drawButton(minecraft, mouseX, mouseY);
 			}

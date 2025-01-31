@@ -44,6 +44,8 @@ public abstract class EntryListWidget extends GuiSlot {
 		int n6 = this.getSize();
 		int n7 = this.getScrollBarX();
 		int n8 = n7 + 6;
+		if (mouseX == n7)
+			this.setScrolling(true);
 		if (mouseX > this.left && mouseX < this.right && mouseY > this.top && mouseY < this.bottom) {
 			int n9;
 			if (Mouse.isButtonDown(0) && this.isScrolling()) {

@@ -1,7 +1,6 @@
 package com.terraformersmc.modmenu.mixin;
 
 import com.terraformersmc.modmenu.ModMenu;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.event.ModMenuEventHandler;
 import com.terraformersmc.modmenu.gui.ModsScreen;
@@ -9,11 +8,8 @@ import com.terraformersmc.modmenu.gui.widget.ModMenuButtonWidget;
 import com.terraformersmc.modmenu.gui.widget.UpdateCheckerTexturedButtonWidget;
 import com.terraformersmc.modmenu.util.TranslationUtil;
 
-import net.minecraft.GuiScreen;
-import net.minecraft.GuiMainMenu;
-import net.minecraft.GuiButton;
-import net.minecraft.ResourceLocation;
-import net.minecraft.I18n;
+import io.github.prospector.modmenu.api.ModMenuApi;
+import net.minecraft.*;
 
 import java.util.List;
 
@@ -25,13 +21,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GuiMainMenu.class)
 public abstract class MixinTitleScreen extends GuiScreen {
-	/** button id for menu.multiplayer button */
+	/**
+	 * button id for menu.multiplayer button
+	 */
 	private static final int MULTIPLAYER = 2;
-	/** button id for menu.online button */
+	/**
+	 * button id for menu.online button
+	 */
 	private static final int ONLINE = 14;
-	/** button id for modmenu.title button */
+	/**
+	 * button id for modmenu.title button
+	 */
 	private static final int MODS = 69;
-	private static final ResourceLocation FABRIC_ICON_BUTTON_LOCATION = new ResourceLocation("textures/gui/mods_button.png");
+	private static final ResourceLocation FABRIC_ICON_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/mods_button.png");
 
 	@Inject(at = @At(value = "TAIL"), method = "initGui")
 	private void onInit(CallbackInfo ci) {
@@ -84,16 +86,16 @@ public abstract class MixinTitleScreen extends GuiScreen {
 		}
 	}
 
-@ModifyArg(method = "drawScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/GuiMainMenu;drawString(Lnet/minecraft/FontRenderer;Ljava/lang/String;III)V", ordinal = 0))
+	@ModifyArg(method = "drawScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/GuiMainMenu;drawString(Lnet/minecraft/FontRenderer;Ljava/lang/String;III)V", ordinal = 0))
 	private String onRender(String string) {
 		if (ModMenuConfig.MODIFY_TITLE_SCREEN.getValue() && ModMenuConfig.MOD_COUNT_LOCATION.getValue().isOnTitleScreen()) {
 			String count = ModMenu.getDisplayedModCount();
 			String specificKey = "modmenu.mods." + count;
-			String replacementKey = TranslationUtil.hasTranslation(specificKey) ? specificKey : "modmenu.mods.n";
+			String replacementKey = TranslationUtil.hasTranslation(specificKey) ? specificKey : "modmenu.mods.%s";
 			if (ModMenuConfig.EASTER_EGGS.getValue() && TranslationUtil.hasTranslation(specificKey + ".secret")) {
 				replacementKey = specificKey + ".secret";
 			}
-			return string.replace(I18n.getString(I18n.getString("menu.modded")), I18n.getStringParams(replacementKey, count));
+			return string + EnumChatFormatting.RESET + I18n.getStringParams(replacementKey, count);
 		}
 		return string;
 	}

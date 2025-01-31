@@ -21,9 +21,9 @@ import net.minecraft.ChatMessageComponent;
 import java.util.Collections;
 
 public class ModListEntry implements EntryListWidget.Entry {
-	public static final ResourceLocation UNKNOWN_ICON = new ResourceLocation("textures/misc/unknown_pack.png");
-	private static final ResourceLocation MOD_CONFIGURATION_ICON = new ResourceLocation("textures/gui/mod_configuration.png");
-	private static final ResourceLocation ERROR_ICON = new ResourceLocation("textures/gui/world_selection.png");
+	public static final ResourceLocation UNKNOWN_ICON = new ResourceLocation(ModMenu.MOD_ID, "textures/misc/unknown_pack.png");
+	private static final ResourceLocation MOD_CONFIGURATION_ICON = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/mod_configuration.png");
+	private static final ResourceLocation ERROR_ICON = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/world_selection.png");
 
 	protected final Minecraft client;
 	public final Mod mod;
@@ -91,6 +91,7 @@ public class ModListEntry implements EntryListWidget.Entry {
 						this.list.getParent().setTooltip(Collections.singletonList(this.client.fontRenderer.trimStringToWidth(ChatMessageComponent.createFromTranslationWithSubstitutions("modmenu.configure.error", modId, modId).addText("\n\n").addText(e.toString()).setColor(EnumChatFormatting.RED).toStringWithFormatting(true), 175)));
 					}
 				} else {
+					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 					this.client.getTextureManager().bindTexture(MOD_CONFIGURATION_ICON);
 					DrawingUtil.drawTexture(x, y, 0.0F, (float) v, iconSize, iconSize, textureSize, textureSize);
 				}

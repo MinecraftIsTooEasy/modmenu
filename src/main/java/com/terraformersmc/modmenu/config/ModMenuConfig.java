@@ -39,7 +39,7 @@ public class ModMenuConfig {
 	public static final StringSetConfigOption HIDDEN_MODS = new StringSetConfigOption("hidden_mods", new HashSet<>());
 	public static final StringSetConfigOption HIDDEN_CONFIGS = new StringSetConfigOption("hidden_configs", new HashSet<>());
 	public static final StringSetConfigOption DISABLE_UPDATE_CHECKER = new StringSetConfigOption("disable_update_checker", new HashSet<>());
-	public static final BooleanConfigOption UPDATE_CHECKER = new BooleanConfigOption("update_checker", true);
+	public static final BooleanConfigOption UPDATE_CHECKER = new BooleanConfigOption("update_checker", false);
 	public static final BooleanConfigOption BUTTON_UPDATE_BADGE = new BooleanConfigOption("button_update_badge", true);
 	public static final BooleanConfigOption QUICK_CONFIGURE = new BooleanConfigOption("quick_configure", true);
 

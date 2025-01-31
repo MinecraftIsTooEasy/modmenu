@@ -7,7 +7,6 @@ import com.terraformersmc.modmenu.config.option.BooleanConfigOption;
 import com.terraformersmc.modmenu.config.option.ConfigOptionStorage;
 import com.terraformersmc.modmenu.config.option.EnumConfigOption;
 import com.terraformersmc.modmenu.config.option.StringSetConfigOption;
-import net.fabricmc.loader.api.FabricLoader;
 import net.xiaoyu233.fml.FishModLoader;
 
 import java.io.*;

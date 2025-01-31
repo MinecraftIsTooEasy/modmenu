@@ -5,9 +5,9 @@
   "version": "$version",
   "environment": "client",
   "license": "MIT",
-  "icon": "assets/minecraft/icon.png",
+  "icon": "assets/modmenu/icon.png",
   "entrypoints": {
-    "client-init": [
+    "client": [
       "com.terraformersmc.modmenu.ModMenu"
     ],
     "modmenu": [
@@ -15,13 +15,13 @@
     ]
   },
   "contact": {
-    "homepage": "https://modrinth.com/mod/modmenu-ornithe",
-    "sources": "https://github.com/OrnitheMC/modmenu",
-    "issues": "https://github.com/OrnitheMC/modmenu/issues"
+    "homepage": "https://modrinth.com/mod/modmenu",
+    "sources": "https://github.com/MinecraftIsTooEasy/modmenu",
+    "issues": "https://github.com/MinecraftIsTooEasy/modmenu/issues"
   },
   "depends": {
-    "mite": "1.6.x",
-    "fishmodloader": ">=3.0.0"
+    "minecraft": "1.6.x",
+    "fishmodloader": ">=3.4.1"
   },
   "authors": [
     "Prospector",
@@ -105,7 +105,7 @@
   "custom": {
     "modmenu": {
       "links": {
-        "modmenu.discord": "https://discord.gg/JbRbRf62pn"
+        "modmenu.discord": "https://discord.gg/2tSuFhZxS8"
       }
     }
   }

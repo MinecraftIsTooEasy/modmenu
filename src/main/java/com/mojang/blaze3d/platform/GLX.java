@@ -1,5 +1,6 @@
 package com.mojang.blaze3d.platform;
 
+import com.terraformersmc.modmenu.util.GlUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.lwjgl.opengl.ARBMultitexture;
@@ -13,6 +14,7 @@ public class GLX {
 	private static boolean useMultitextureArb;
 
 	public static void init() {
+		GlUtil.init();
 		useMultitextureArb = GLContext.getCapabilities().GL_ARB_multitexture && !GLContext.getCapabilities().OpenGL13;
 		if (useMultitextureArb) {
 			GL_TEXTURE0 = 33984;

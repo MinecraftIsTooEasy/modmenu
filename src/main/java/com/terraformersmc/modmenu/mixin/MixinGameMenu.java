@@ -1,12 +1,12 @@
 package com.terraformersmc.modmenu.mixin;
 
 import com.terraformersmc.modmenu.ModMenu;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
 import com.terraformersmc.modmenu.gui.ModsScreen;
 import com.terraformersmc.modmenu.gui.widget.ModMenuButtonWidget;
 import com.terraformersmc.modmenu.gui.widget.UpdateCheckerTexturedButtonWidget;
 
+import io.github.prospector.modmenu.api.ModMenuApi;
 import net.minecraft.GuiIngameMenu;
 import net.minecraft.GuiScreen;
 import net.minecraft.GuiButton;
@@ -27,7 +27,7 @@ public abstract class MixinGameMenu extends GuiScreen {
 	private static final int SHARE_TO_LAN = 7;
 	/** button id for modmenu.title button */
 	private static final int MODS = 69;
-	private static final ResourceLocation FABRIC_ICON_BUTTON_LOCATION = new ResourceLocation("textures/gui/mods_button.png");
+	private static final ResourceLocation FABRIC_ICON_BUTTON_LOCATION = new ResourceLocation(ModMenu.MOD_ID, "textures/gui/mods_button.png");
 	@Inject(method = "initGui", at = @At(value = "TAIL"))
 	private void onInit(CallbackInfo ci) {
 		if (ModMenuConfig.MODIFY_GAME_MENU.getValue()) {

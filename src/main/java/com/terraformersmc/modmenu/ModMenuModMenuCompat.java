@@ -1,9 +1,9 @@
 package com.terraformersmc.modmenu;
 
 import com.google.common.collect.ImmutableMap;
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import com.terraformersmc.modmenu.gui.ModMenuOptionsScreen;
+import io.github.prospector.modmenu.api.ConfigScreenFactory;
+import io.github.prospector.modmenu.api.ModMenuApi;
 import net.minecraft.GuiOptions;
 import net.minecraft.Minecraft;
 

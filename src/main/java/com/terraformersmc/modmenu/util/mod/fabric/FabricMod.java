@@ -6,11 +6,9 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import com.terraformersmc.modmenu.ModMenu;
 import com.terraformersmc.modmenu.config.ModMenuConfig;
-import com.terraformersmc.modmenu.util.OptionalUtil;
 import com.terraformersmc.modmenu.util.VersionUtil;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import com.terraformersmc.modmenu.util.mod.ModrinthData;
-import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.*;
 import net.minecraft.DynamicTexture;
@@ -100,10 +98,10 @@ public class FabricMod implements Mod {
 
 		/* Hardcode parents and badges for OSL & Fabric Loader */
 		String id = metadata.getId();
-		if (id.startsWith("osl-")) {
-			modMenuData.fillParentIfEmpty("osl");
-			modMenuData.badges.add(Badge.LIBRARY);
-		}
+//		if (id.startsWith("osl-")) {
+//			modMenuData.fillParentIfEmpty("osl");
+//			modMenuData.badges.add(Badge.LIBRARY);
+//		}
 		if (id.startsWith("fishmodloader") && (id.equals("fishmodloader") || metadata.getProvides().contains("fishmodloader")) || (id.equals("osl") || metadata.getProvides().contains("osl"))) {
 			modMenuData.badges.add(Badge.LIBRARY);
 		}
@@ -113,12 +111,12 @@ public class FabricMod implements Mod {
 		if (this.metadata.getEnvironment() == ModEnvironment.CLIENT) {
 			badges.add(Badge.CLIENT);
 		}
-		if (OptionalUtil.isPresentAndTrue(CustomValueUtil.getBoolean("fml-loom:generated", metadata)) || "java".equals(id)) {
-			badges.add(Badge.LIBRARY);
-		}
-		if ("deprecated".equals(CustomValueUtil.getString("fml-api:module-lifecycle", metadata).orElse(null))) {
-			badges.add(Badge.DEPRECATED);
-		}
+//		if (OptionalUtil.isPresentAndTrue(CustomValueUtil.getBoolean("fml-loom:generated", metadata)) || "java".equals(id)) {
+//			badges.add(Badge.LIBRARY);
+//		}
+//		if ("deprecated".equals(CustomValueUtil.getString("fml-api:module-lifecycle", metadata).orElse(null))) {
+//			badges.add(Badge.DEPRECATED);
+//		}
 		if (metadata.containsCustomValue("patchwork:patcherMeta")) {
 			badges.add(Badge.PATCHWORK_FORGE);
 		}

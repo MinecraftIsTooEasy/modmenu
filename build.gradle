@@ -3,7 +3,7 @@ plugins {
 	id 'maven-publish'
 }
 
-version = project.mod_version
+version = project.version
 group = project.maven_group
 
 base {
@@ -21,7 +21,7 @@ repositories {
 loom {
 	accessWidenerPath = file("src/main/resources/modmenu.accesswidener")
 	mergedMinecraftJar()
-	setFML(new File("libs\\FishModLoader-v3.3.2.jar"))
+	setFML(new File("F:\\Projects\\IDEA\\Minecraft\\MITE\\FML3\\FishModLoader-v3.4.1.jar"))
 	mods {
 		"Bread Skin" {
 			sourceSet sourceSets.main
@@ -37,7 +37,6 @@ runClient{
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.fmlMCPMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 //	implementation("org.spongepowered:mixin:0.8.5")
 
 	implementation files(loom.getFML().toPath())

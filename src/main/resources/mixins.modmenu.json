@@ -2,20 +2,16 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.terraformersmc.modmenu.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_17",
   "client": [
     "AccessorButtonWidget",
     "AccessorI18n",
     "AccessorTranslationStorage",
     "MixinGameMenu",
-    "MixinGLX",
     "MixinTextFieldWidget",
     "MixinTitleScreen"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "FishModLoaderMixin"
-  ]
+  }
 }
